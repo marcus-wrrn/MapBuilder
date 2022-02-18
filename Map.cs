@@ -1,34 +1,13 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-
+using Assets;
 
 namespace TileMap {
-    class Tile {
-        public Texture2D Texture{ get; set; }
-        public string Name { get; set; }
-
-        public Tile(Texture2D texture, string name) {
-            Texture = texture;
-            Name = name;
-        }// end constructor
-
-        public Tile(string name, Game game) {
-            try {
-                Texture = game.Content.Load<Texture2D>(name);
-            } catch {
-                Console.WriteLine("Tile not found");
-            }
-        }// end constructor
-
-    }
     public class Background {
-        private Texture2D[,] map;                   // Map of all tiles
+        private GameAsset[,] map;                   // Map of all tiles
         public int Rows { get; set; }               // Number of rows in the map 
         public int Columns { get; set; }            // Number of columns in the map
         public Texture2D BaseTile { get; set; }     // Reference texture
@@ -39,7 +18,7 @@ namespace TileMap {
             BaseTile = baseTile;
             Rows = rows;
             Columns = columns;
-            map = new Texture2D[rows, columns];
+            map = new GameAsset[rows, columns];
             Console.WriteLine("Rows: {0}\nColomns: {0}", rows, columns);
             // Create background
             GenerateMap();
@@ -54,11 +33,15 @@ namespace TileMap {
                 // Load in the baseTile
                 BaseTile = game.Content.Load<Texture2D>(binReader.ReadString());
                 // Load in Map
-                map = new Texture2D[Rows, Columns];
+                map = new GameAsset[Rows, Columns];
+                Vector2 location = new Vector2(0,0);
                 for(int i = 0; i < Rows; i++) {
                     for(int j = 0; j < Columns; j++) { 
-                        map[i,j] = game.Content.Load<Texture2D>(binReader.ReadString());
+                        map[i,j] = new GameAsset(game.Content.Load<Texture2D>(binReader.ReadString()), location);
+                        location.X += BaseTile.Width;
                     }
+                    location.Y += BaseTile.Height;
+                    location.X = 0;
                 }
             } catch {
                     Console.WriteLine("Failed to load map");
@@ -66,31 +49,30 @@ namespace TileMap {
         }// end constructor from file
 
         private void GenerateMap() {
+            Vector2 location = new Vector2(0,0);
             for (int i = 0; i < Rows; i++) {
                 for(int j = 0; j < Columns; j++) {
-                    map[i,j] = BaseTile;
-                }
-            }
-        }// end GenerateMap()
-
-        public void Draw(SpriteBatch spriteBatch) {
-            Vector2 location = new Vector2(0,0);
-            for(int i = 0; i < Rows; i++) {
-                for(int j = 0; j < Columns; j++) {
-                    // Draw the sprite
-                    DrawTile(spriteBatch, map[i,j], location);
-                    // Change location
+                    map[i,j] = new GameAsset(BaseTile, location);
                     location.X += BaseTile.Width;
                 }
                 location.Y += BaseTile.Height;
                 location.X = 0;
             }
+        }// end GenerateMap()
+
+        public void Draw(SpriteBatch spriteBatch) {
+            for(int i = 0; i < Rows; i++) {
+                for(int j = 0; j < Columns; j++) {
+                    // Draw the sprite
+                    DrawTile(spriteBatch, map[i,j]);
+                }
+            }
         }// end Draw()
 
-        private void DrawTile(SpriteBatch spriteBatch, Texture2D texture, Vector2 location) {
+        private void DrawTile(SpriteBatch spriteBatch, GameAsset tile) {
             try {
-                Rectangle sourceRectangle = new Rectangle((int)location.X, (int)location.Y, BaseTile.Width, BaseTile.Height);
-                spriteBatch.Draw(texture, sourceRectangle, null, Color.White);
+                Rectangle sourceRectangle = new Rectangle((int)tile.Location.X, (int)tile.Location.Y, BaseTile.Width, BaseTile.Height);
+                spriteBatch.Draw(tile.Texture, sourceRectangle, null, Color.White);
             } catch {
                 Console.WriteLine("Tile Exeception source");
             }
@@ -102,11 +84,15 @@ namespace TileMap {
                 int col = (int)(location.X/BaseTile.Height);
                 int row = (int)(location.Y/BaseTile.Width);
                 // Replace tile
-                map[row,col] = tile;
+                map[row,col].Texture = tile;
             }  catch {
                 Console.WriteLine("Divide by zero error");
             }
         }// end updateTile()
+
+        public GameAsset GetTile(int row, int col) {
+            return map[row,col];
+        }
 
         public void ExportToBinary(string fileName) {
             // Create Binary file                 
@@ -120,10 +106,10 @@ namespace TileMap {
                     binWriter.Write(BaseTile.Name);
                     for(int i = 0; i < Rows; i++)
                         for(int j = 0; j < Columns; j++) {
-                            binWriter.Write(map[i,j].Name);
+                            binWriter.Write(map[i,j].Texture.Name);
                             // If the texture is not on the list of textures add it
-                            if (textureList.Contains(map[i,j].Name))
-                                textureList.Append(map[i,j].Name);
+                            if (textureList.Contains(map[i,j].Texture.Name))
+                                textureList.Append(map[i,j].Texture.Name);
                         }
                     foreach(string name in textureList)
                         binWriter.Write(name);
@@ -131,7 +117,6 @@ namespace TileMap {
                 } catch (IOException ioexp) {
                     Console.WriteLine("Error: {0}", ioexp.Message);
                 }
-                
             }
         }
     }// end Background

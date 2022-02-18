@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
+using TileMap;
 
 namespace Drawing {
     public class BrushException: Exception {
@@ -36,7 +37,18 @@ namespace Drawing {
                 brushSize--;
         }// end DecreaseBrushSize()
 
-        
-
+        public void DrawBrush(SpriteBatch spriteBatch, Background background, Vector2 mouseLocation) {
+            // Find the tile location 
+            int col = (int)(mouseLocation.X/background.BaseTile.Height);
+            int row = (int)(mouseLocation.Y/background.BaseTile.Width);
+            // Get Location
+            Vector2 brushLocation = background.GetTile(row,col).Location;
+            try {
+                Rectangle sourceRectangle = new Rectangle((int)brushLocation.X, (int)brushLocation.Y, PrimaryTexture.Width, PrimaryTexture.Height);
+                spriteBatch.Draw(PrimaryTexture, sourceRectangle, null, Color.White);
+            } catch {
+                Console.WriteLine("Tile Exeception source");
+            }
+        }
     }
 }
