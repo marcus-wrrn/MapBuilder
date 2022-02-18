@@ -63,12 +63,15 @@ namespace Controller {
                 switch (butt.effectName) {
                     case Commands.MENU_VISIBILITY:
                         // Toggles menu visibility
-                        UseCommand(kState, butt, () => menu.toggleVisibility());
+                        UseCommand(kState, butt, () => menu.ToggleVisibility());
                         break;
                     // Swap to move menu mode
                     case Commands.MOVE_MENU_MODE_SWITCH:
                         // Toggles to move menu mode
-                        UseCommand(kState, butt, () => mode = ControllerMode.MOVE_MENU);
+                        if(mode == ControllerMode.DRAW)
+                            UseCommand(kState, butt, () => mode = ControllerMode.MOVE_MENU);
+                        else if(mode == ControllerMode.MOVE_MENU)
+                            UseCommand(kState, butt, () => mode = ControllerMode.DRAW);
                         break;
                     case Commands.MOVE_UP:
                         if(mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
@@ -95,7 +98,7 @@ namespace Controller {
 
         private void ToggleMenuVisibility(MenuSystem.TilePickerMenu menu, Button butt) {
             if(!butt.IsPressed) {
-                menu.toggleVisibility();
+                menu.ToggleVisibility();
                 butt.IsPressed = true;
             }
         }// end ToggleMenuVisibility()

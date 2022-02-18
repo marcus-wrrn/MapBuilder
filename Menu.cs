@@ -29,30 +29,31 @@ namespace MenuSystem {
                 menuSize = scale;
                 MenuClicked = false;
                 visible = true;
-                setButtonData(tileSets);
+                SetTileData(tileSets);
             } catch(MenuException e) {
                 Console.WriteLine(e);
             }
-        }
+        }// end TilePickerMenu()
 
-        public void toggleVisibility() {
+        public void ToggleVisibility() {
             if(visible)
                 visible = false;
             else
                 visible = true;
-        }
+        }// end toggleVisibility()
 
-        public bool ifMenuClicked(Vector2 mouse) {
+        public bool IfMenuClicked(Vector2 mouse) {
             if(!visible)
                 return false;
             if (mouse.X >= menuAsset.Location.X && mouse.X <= menuAsset.Location.X + menuAsset.Texture.Width)
                 if (mouse.Y >= menuAsset.Location.Y && mouse.Y <= menuAsset.Location.Y + menuAsset.Texture.Height)
                     return true;
             return false;
-        }
-
+        }// end ifMenuClicked()
         
         public void MoveUp(GameTime gameTime) {
+            if(!visible)
+                return;
             menuAsset.MoveUp(gameTime);
             foreach(GameAsset asset in tileData) {
                 asset.MoveUp(gameTime);
@@ -60,6 +61,8 @@ namespace MenuSystem {
         }// end MoveUp()
 
         public void MoveDown(GameTime gameTime) {
+            if(!visible)
+                return;
             menuAsset.MoveDown(gameTime);
             foreach(GameAsset asset in tileData) {
                 asset.MoveDown(gameTime);
@@ -67,6 +70,8 @@ namespace MenuSystem {
         }// end MoveDown()
 
         public void MoveLeft(GameTime gameTime) {
+            if(!visible)
+                return;
             menuAsset.MoveLeft(gameTime);
             foreach(GameAsset asset in tileData) {
                 asset.MoveLeft(gameTime);
@@ -74,34 +79,15 @@ namespace MenuSystem {
         }// end MoveLeft()
 
         public void MoveRight(GameTime gameTime) {
+            if(!visible)
+                return;
             menuAsset.MoveRight(gameTime);
             foreach(GameAsset asset in tileData) {
                 asset.MoveRight(gameTime);
             }
         }// end MoveRight()
 
-        // public void DragAndDrop(Vector2 mouse, Vector2 mouseStart, GameTime gameTime) {
-        //     Vector2 location = Location;
-        //     Console.WriteLine("Mouse: {0}, {0}", Location.X, Location.Y);
-        //     location.X += 100f * (float)(mouse.X - mouseStart.X) * (float)gameTime.ElapsedGameTime.TotalSeconds;
-        //     location.Y += 100f * (float)(mouse.Y - mouseStart.Y) * (float)gameTime.ElapsedGameTime.TotalSeconds;
-        //     Location = location;
-        //     setButtonData();
-        //     Console.WriteLine("Mouse Start: {0}, {0}", Location.X, Location.Y);
-        // }
-
-        private void moveButtons(Vector2 mouse, Vector2 mouseStart, GameTime gameTime) {
-            Vector2 tempLocation = new Vector2(0,0);
-            foreach(GameAsset butt in tileData) {
-                tempLocation = butt.Location;
-                tempLocation.X += 100f * (float)(mouse.X - mouseStart.X) * (float)gameTime.ElapsedGameTime.TotalSeconds;
-                tempLocation.Y += 100f * (float)(mouse.Y - mouseStart.Y) * (float)gameTime.ElapsedGameTime.TotalSeconds;
-                butt.Location = tempLocation;
-            }
-        }
-
-        //------------------------- Work In Progress -------------
-        private void setButtonData(Texture2D[] tileSets) {
+        private void SetTileData(Texture2D[] tileSets) {
             // Check that the size of the tileSet does not exceed the menu
             if(tileSets.Length > 8 || tileSets.Length == 0) 
                 throw new MenuException("Menu can only support up to " + tileLimit + " tiles");
@@ -132,22 +118,22 @@ namespace MenuSystem {
                     Rectangle baseRectangle = new Rectangle((int)menuAsset.Location.X, (int)menuAsset.Location.Y, menuAsset.Texture.Width, menuAsset.Texture.Height);
                     spriteBatch.Draw(menuAsset.Texture, baseRectangle, null, Color.White);
                     // Draws the tiles
-                    drawTiles(spriteBatch);
+                    DrawTiles(spriteBatch);
                 }
             } catch {
                 Console.WriteLine("Console Did Not Load");
             }        
-        }
+        }// end Draw()
 
         // Draws all the tiles into their place in menu
-        private void drawTiles(SpriteBatch spriteBatch) {
+        private void DrawTiles(SpriteBatch spriteBatch) {
             for (int i = 0; i < tileData.Length; i++) {
                 spriteBatch.Draw(tileData[i].Texture, tileData[i].Location, null, Color.White);
             }
-        }
+        }// end DrawTiles()
 
         // Gets the texture data of the menu item when clicked returns null if not found
-        public Microsoft.Xna.Framework.Graphics.Texture2D getTileData(Vector2 mouseLocation) {
+        public Microsoft.Xna.Framework.Graphics.Texture2D GetTileTexture(Vector2 mouseLocation) {
             if(!visible)
                 return null;
             foreach(GameAsset tile in tileData) {
@@ -156,7 +142,7 @@ namespace MenuSystem {
                         return tile.Texture;
             }
             return null;
-        }
+        }// end GetTileTexture()
 
         
     }

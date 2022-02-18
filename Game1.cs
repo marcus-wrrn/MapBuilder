@@ -83,10 +83,10 @@ namespace MapBuilder
             // If left mouse button pressed
             if(Mouse.GetState().LeftButton == ButtonState.Pressed) {
                 // Check to see if it clicked on a menu icon
-                Texture2D tempTile = menu.getTileData(mouse);
+                Texture2D tempTile = menu.GetTileTexture(mouse);
                 if(tempTile != null)
                     currentTile = tempTile;
-                else if(menu.ifMenuClicked(mouse)) {
+                else if(menu.IfMenuClicked(mouse)) {
                     if(!menu.MenuClicked) {
                         System.Console.WriteLine("WTF");
                         menu.MenuClicked = true;
