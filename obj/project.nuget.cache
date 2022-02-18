@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "GpvrJBN8Zf7XBPkmaucH0/Y8IqtEvLeJ3bLVBmtaRSwIYsdtE0MJ0bwtOxqRZRzMVuE3uA9ykueuk9bQih6hgQ==",
+  "success": true,
+  "projectFilePath": "/home/marcus/Projects/MapBuilder/MapBuilder/MapBuilder.csproj",
+  "expectedPackageFiles": [
+    "/home/marcus/.nuget/packages/monogame.content.builder.task/3.8.0.1641/monogame.content.builder.task.3.8.0.1641.nupkg.sha512",
+    "/home/marcus/.nuget/packages/monogame.framework.desktopgl/3.8.0.1641/monogame.framework.desktopgl.3.8.0.1641.nupkg.sha512"
+  ],
+  "logs": []
+}
