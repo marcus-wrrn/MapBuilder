@@ -6,6 +6,11 @@ using System.Linq;
 using Assets;
 
 namespace TileMap {
+
+    public class BackgroundException : Exception {
+        public BackgroundException(string message): base(message) {}
+    }// end BackgroundException
+
     public class Background {
         private GameAsset[,] map;                   // Map of all tiles
         public int Rows { get; set; }               // Number of rows in the map 
@@ -91,6 +96,8 @@ namespace TileMap {
         }// end updateTile()
 
         public GameAsset GetTile(int row, int col) {
+            if(row >= map.GetLength(0) || row < 0 || col >= map.GetLength(1) || col < 0)
+                throw new BackgroundException("Brush is out of bounds of the map");
             return map[row,col];
         }
 

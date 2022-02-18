@@ -10,16 +10,16 @@ namespace Drawing {
     }// end BrushException
 
     public class Brush {
-        public Texture2D PrimaryTexture{ get; set; }
-        public Texture2D SecondaryTexture{ get; set; }
+        public Assets.GameAsset PrimaryTexture{ get; set; }
+        public Assets.GameAsset SecondaryTexture{ get; set; }
         private int brushSize;
 
         // Constructors
         public Brush(Texture2D prim, Texture2D second, int size) {
             if(size <= 0 && size <= 10)
                 throw new BrushException("Size of brush must be between 1 and 10, got: " + size);
-            PrimaryTexture = prim;
-            SecondaryTexture = second;
+            PrimaryTexture = new Assets.GameAsset(prim);
+            SecondaryTexture = new Assets.GameAsset(second);
             brushSize = size;
         }// end main constructor
 
@@ -37,15 +37,24 @@ namespace Drawing {
                 brushSize--;
         }// end DecreaseBrushSize()
 
-        public void DrawBrush(SpriteBatch spriteBatch, Background background, Vector2 mouseLocation) {
-            // Find the tile location 
+        public void UpdateBrush(Background background, Vector2 mouseLocation) {
             int col = (int)(mouseLocation.X/background.BaseTile.Height);
             int row = (int)(mouseLocation.Y/background.BaseTile.Width);
+            // If brush is out of bounds of the map don't update
+            if(row >= background.Rows || row < 0 || col >= background.Columns || col < 0)
+                return;
             // Get Location
             Vector2 brushLocation = background.GetTile(row,col).Location;
+            if(brushLocation != null) {
+                PrimaryTexture.Location = brushLocation;
+                SecondaryTexture.Location = brushLocation;
+            }
+        }
+
+        public void DrawBrush(SpriteBatch spriteBatch) {
             try {
-                Rectangle sourceRectangle = new Rectangle((int)brushLocation.X, (int)brushLocation.Y, PrimaryTexture.Width, PrimaryTexture.Height);
-                spriteBatch.Draw(PrimaryTexture, sourceRectangle, null, Color.White);
+                Rectangle sourceRectangle = new Rectangle((int)PrimaryTexture.Location.X, (int)PrimaryTexture.Location.Y, PrimaryTexture.Texture.Width, PrimaryTexture.Texture.Height);
+                spriteBatch.Draw(PrimaryTexture.Texture, sourceRectangle, null, Color.White);
             } catch {
                 Console.WriteLine("Tile Exeception source");
             }

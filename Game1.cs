@@ -14,9 +14,8 @@ namespace MapBuilder
         private SpriteBatch _spriteBatch;
 
         private Background background;
-        private Texture2D currentTile;
-        private Texture2D secondTile;
         private TilePickerMenu menu;
+        private Drawing.Brush brush;
         private string fileName = "test";
 
         private Controller.GameControl controller;
@@ -46,46 +45,35 @@ namespace MapBuilder
 
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             ball = Content.Load<Texture2D>("Ball");
-            currentTile = Content.Load<Texture2D>("tile");
-            secondTile = Content.Load<Texture2D>("tile2Test");
             Texture2D menuTexture = Content.Load<Texture2D>("Menu");
             background = new Background(fileName, this);
             // background = new Background(currentTile, (int)(_graphics.PreferredBackBufferHeight / currentTile.Height), (int)(_graphics.PreferredBackBufferWidth / currentTile.Width));
             menu = new TilePickerMenu(test, 0, new Vector2(_graphics.PreferredBackBufferWidth - menuTexture.Width, 0), menuTexture);
+            brush = new Drawing.Brush(Content.Load<Texture2D>("tile"), Content.Load<Texture2D>("tile2Test"));
         }
 
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            
+
 
             var kstate = Keyboard.GetState();
 
-            // Command Logic
-
-            // If Shift + V is pressed toggle map visibility
-
-            // if(kstate.IsKeyDown(Keys.V) && kstate.IsKeyDown(Keys.LeftShift)) {
-            //     if(keyRelease)
-            //         menu.toggleVisibility();
-            //     keyRelease = false;
-            // }
-
-            // if(kstate.IsKeyUp(Keys.V) && !keyRelease)
-            //     keyRelease = true;
-                
+            // Command Logic                
             controller.MenuEffects(this, menu, gameTime);
             // Mouse Logic
             // Finds the position of the mouse
             Vector2 mouse = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
             Vector2 mouseStart = new Vector2(0,0);
+            if (mouse.X <= _graphics.PreferredBackBufferWidth && mouse.Y <= _graphics.PreferredBackBufferHeight)
+                brush.UpdateBrush(background, mouse);
             // If left mouse button pressed
             if(Mouse.GetState().LeftButton == ButtonState.Pressed) {
                 // Check to see if it clicked on a menu icon
                 Texture2D tempTile = menu.GetTileTexture(mouse);
                 if(tempTile != null)
-                    currentTile = tempTile;
+                    brush.PrimaryTexture.Texture = tempTile;
                 else if(menu.IfMenuClicked(mouse)) {
                     if(!menu.MenuClicked) {
                         System.Console.WriteLine("WTF");
@@ -100,10 +88,9 @@ namespace MapBuilder
                 }    
                 // If the menu icon wasn't clicked update the tile below it
                 else {
-                    background.UpdateTile(currentTile, mouse);
+                    background.UpdateTile(brush.PrimaryTexture.Texture, mouse);
                     menu.MenuClicked = false;
                 }
-                 
             }
             // If e was pressed export the map to a binary file
             if(Keyboard.GetState().IsKeyDown(Keys.E))
@@ -117,6 +104,7 @@ namespace MapBuilder
             GraphicsDevice.Clear(Color.CornflowerBlue);
             _spriteBatch.Begin();
             background.Draw(_spriteBatch);
+            brush.DrawBrush(_spriteBatch);
             menu.Draw(_spriteBatch);
             _spriteBatch.End();
             // TODO: Add your drawing code here
