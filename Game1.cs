@@ -100,14 +100,14 @@ namespace MapBuilder
                 }    
                 // If the menu icon wasn't clicked update the tile below it
                 else {
-                    background.updateTile(currentTile, mouse);
+                    background.UpdateTile(currentTile, mouse);
                     menu.MenuClicked = false;
                 }
                  
             }
             // If e was pressed export the map to a binary file
             if(Keyboard.GetState().IsKeyDown(Keys.E))
-                background.exportToBinary(fileName);
+                background.ExportToBinary(fileName);
 
             base.Update(gameTime);
         }

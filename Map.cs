@@ -42,16 +42,8 @@ namespace TileMap {
             map = new Texture2D[rows, columns];
             Console.WriteLine("Rows: {0}\nColomns: {0}", rows, columns);
             // Create background
-            generateMap();
+            GenerateMap();
         }// end Constructor
-
-        private void generateMap() {
-            for (int i = 0; i < Rows; i++) {
-                for(int j = 0; j < Columns; j++) {
-                    map[i,j] = BaseTile;
-                }
-            }
-        }// end generateMap
 
         // Constructor to build a map from a file
         public Background(string fileName, Game game) {
@@ -71,10 +63,18 @@ namespace TileMap {
             } catch {
                     Console.WriteLine("Failed to load map");
             }
-        }
+        }// end constructor from file
+
+        private void GenerateMap() {
+            for (int i = 0; i < Rows; i++) {
+                for(int j = 0; j < Columns; j++) {
+                    map[i,j] = BaseTile;
+                }
+            }
+        }// end GenerateMap()
+
         public void Draw(SpriteBatch spriteBatch) {
             Vector2 location = new Vector2(0,0);
-
             for(int i = 0; i < Rows; i++) {
                 for(int j = 0; j < Columns; j++) {
                     // Draw the sprite
@@ -96,7 +96,7 @@ namespace TileMap {
             }
         }// end DrawTile()
 
-        public void updateTile(Texture2D tile, Vector2 location) {
+        public void UpdateTile(Texture2D tile, Vector2 location) {
             try {
                 // Find the tile location 
                 int col = (int)(location.X/BaseTile.Height);
@@ -104,14 +104,12 @@ namespace TileMap {
                 // Replace tile
                 map[row,col] = tile;
             }  catch {
-                
+                Console.WriteLine("Divide by zero error");
             }
         }// end updateTile()
 
-        public void exportToBinary(string fileName) {
+        public void ExportToBinary(string fileName) {
             // Create Binary file                 
-            
-
             using (BinaryWriter binWriter = new BinaryWriter(File.Open(fileName, FileMode.Create))) {
                 try {
                     // Records total number of elements in the map
