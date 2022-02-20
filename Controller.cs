@@ -11,29 +11,6 @@ namespace Controller {
     // to be used later to swap between different modes for the map editor
     enum ControllerMode { MOVE_MENU, DRAW }
 
-    // Contains all important game Objects
-    public class GameContainer {
-        public MenuSystem.TilePickerMenu TileMenu{ get; set; }
-        public TileMap.Background Map{ get; set; }
-        public Drawing.Brush Brush{ get; set; }
-
-        public GameContainer(MenuSystem.TilePickerMenu tileMenu, TileMap.Background map, Drawing.Brush brush) {
-            TileMenu = tileMenu;
-            Map = map;
-            Brush = brush;
-        }
-    }// end GameContainer
-
-    public class InputContainer {
-        public MouseState Mouse{ get; set; }
-        public KeyboardState KeyState{ get; set; }
-        public GameTime Time{ get; set; }
-        public InputContainer(MouseState mouseState, KeyboardState keyState, GameTime gameTime) {
-            Mouse = mouseState;
-            KeyState = keyState;
-            Time = gameTime;
-        }
-    }// end InputContainer
 
     public class GameControl {
 
@@ -81,8 +58,8 @@ namespace Controller {
             mode = ControllerMode.DRAW;
         }// end GameControl
 
-        public void Update(MapBuilder.Game1 game, GameTime gameTime, GameContainer gameObjects, InputContainer inputs) {
-            MouseEffects(gameObjects);
+        public void Update(MapBuilder.Game1 game, GameTime gameTime) {
+            MouseEffects(game);
             CommandInputs(game, gameTime);
         }
 
@@ -127,22 +104,22 @@ namespace Controller {
             }// end foreach loop
         }// end MenuEffects()
 
-        public void MouseEffects(GameContainer gameObjects) {
+        public void MouseEffects(MapBuilder.Game1 game) {
             var mouseState = Mouse.GetState();
             Vector2 mouseLoc = new Vector2(mouseState.X, mouseState.Y);
             if(mouseState.LeftButton == ButtonState.Pressed) {
                 // Check to see if it clicked on a menu icon
-                Texture2D tempTile = gameObjects.TileMenu.GetTileTexture(mouseLoc);
+                Texture2D tempTile = game.TileMenu.GetTileTexture(mouseLoc);
                 if(tempTile != null)
-                    gameObjects.Brush.PrimaryTexture.Texture = tempTile;
-                else if(gameObjects.TileMenu.IfMenuClicked(mouseLoc)) {
-                    if(!gameObjects.TileMenu.MenuClicked)
-                        gameObjects.TileMenu.MenuClicked = true;
+                    game.Brush.PrimaryTexture.Texture = tempTile;
+                else if(game.TileMenu.IfMenuClicked(mouseLoc)) {
+                    if(!game.TileMenu.MenuClicked)
+                        game.TileMenu.MenuClicked = true;
                 }    
                 // If the menu icon wasn't clicked update the tile below it
                 else {
-                    gameObjects.Map.UpdateTile(gameObjects.Brush.PrimaryTexture.Texture, mouseLoc);
-                    gameObjects.TileMenu.MenuClicked = false;
+                    game.Map.UpdateTile(game.Brush.PrimaryTexture.Texture, mouseLoc);
+                    game.TileMenu.MenuClicked = false;
                 }
             }
         }// end MouseEffects()
