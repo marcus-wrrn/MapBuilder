@@ -117,23 +117,26 @@ namespace Controller {
             if(mouseState.LeftButton == ButtonState.Pressed) {
                 // Set Show Secondary to False
                 game.Brush.ShowSecondary = false;
-                BrushInputHelper(game, game.Brush.PrimaryTexture.Texture, mouseLoc);
+                BrushInputHelper(game, mouseLoc);
             }
             else if(mouseState.RightButton == ButtonState.Pressed) {
                 // Set Brush to display secondary Texture in its view
                 game.Brush.ShowSecondary = true;
-                BrushInputHelper(game, game.Brush.SecondaryTexture.Texture, mouseLoc);
+                BrushInputHelper(game, mouseLoc);
             }
             else
                 game.Brush.ShowSecondary = false;
         }// end MouseEffects()
 
         // Helps BrushInputManager by Making sure that the map is being updated Correctly
-        private void BrushInputHelper(MapBuilder.Game1 game, Texture2D texture, Vector2 mouseLoc) {
+        private void BrushInputHelper(MapBuilder.Game1 game, Vector2 mouseLoc) {
+            // Gets the current texture
+            Texture2D texture = game.Brush.GetCurrentTile().Texture;
             // Check to see if it clicked on a menu icon
             Texture2D tempTile = game.TileMenu.GetTileTexture(mouseLoc);
-            if(tempTile != null)
-                texture = tempTile;
+            if(tempTile != null) {
+                game.Brush.ChangeTexture(tempTile);
+            }
             else if(game.TileMenu.IfMenuClicked(mouseLoc)) {
                 if(!game.TileMenu.MenuClicked)
                     game.TileMenu.MenuClicked = true;

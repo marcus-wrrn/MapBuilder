@@ -12,16 +12,16 @@ namespace Drawing {
     public class Brush {
         private enum Direction { UP, DOWN, LEFT, RIGHT }                        // Used for the bucket fill command helps make the algorithm more efficient
         private int brushSize;
-        public Assets.GameAsset PrimaryTexture{ get; set; }
-        public Assets.GameAsset SecondaryTexture{ get; set; }
+        private Assets.GameAsset primaryTexture;
+        private Assets.GameAsset secondaryTexture;
         public bool ShowSecondary;
 
         // Constructors
         public Brush(Texture2D prim, Texture2D second, int size) {
             if(size <= 0 && size <= 10)
                 throw new BrushException("Size of brush must be between 1 and 10, got: " + size);
-            PrimaryTexture = new Assets.GameAsset(prim);
-            SecondaryTexture = new Assets.GameAsset(second);
+            primaryTexture = new Assets.GameAsset(prim);
+            secondaryTexture = new Assets.GameAsset(second);
             brushSize = size;
             ShowSecondary = false;
         }// end main constructor
@@ -49,11 +49,26 @@ namespace Drawing {
             // Get Location
             Vector2 brushLocation = background.GetTile(row,col).Location;
             if(brushLocation != null) {
-                PrimaryTexture.Location = brushLocation;
-                SecondaryTexture.Location = brushLocation;
+                primaryTexture.Location = brushLocation;
+                secondaryTexture.Location = brushLocation;
             }
         }
+
+
+        public void ChangeTexture(Texture2D texture) {
+            if(ShowSecondary)
+                secondaryTexture.Texture = texture;
+            else
+                primaryTexture.Texture = texture;
+        }
         
+        public Assets.GameAsset GetCurrentTile() {
+            if(ShowSecondary)
+                return secondaryTexture;
+            return primaryTexture;
+        }
+
+
         public void BucketFill(Background map, Vector2 location, Texture2D texture) {
             // Find Row and Column
             int row = map.GetRowNumber(location);
@@ -115,12 +130,12 @@ namespace Drawing {
         public void DrawBrush(SpriteBatch spriteBatch) {
             try {
                 if(!ShowSecondary) {
-                    Rectangle sourceRectangle = new Rectangle((int)PrimaryTexture.Location.X, (int)PrimaryTexture.Location.Y, PrimaryTexture.Texture.Width, PrimaryTexture.Texture.Height);
-                    spriteBatch.Draw(PrimaryTexture.Texture, sourceRectangle, null, Color.White);
+                    Rectangle sourceRectangle = new Rectangle((int)primaryTexture.Location.X, (int)primaryTexture.Location.Y, primaryTexture.Texture.Width, primaryTexture.Texture.Height);
+                    spriteBatch.Draw(primaryTexture.Texture, sourceRectangle, null, Color.White);
                 }
                 else {
-                    Rectangle sourceRectangle = new Rectangle((int)SecondaryTexture.Location.X, (int)SecondaryTexture.Location.Y, SecondaryTexture.Texture.Width, SecondaryTexture.Texture.Height);
-                    spriteBatch.Draw(SecondaryTexture.Texture, sourceRectangle, null, Color.White);
+                    Rectangle sourceRectangle = new Rectangle((int)secondaryTexture.Location.X, (int)secondaryTexture.Location.Y, secondaryTexture.Texture.Width, secondaryTexture.Texture.Height);
+                    spriteBatch.Draw(secondaryTexture.Texture, sourceRectangle, null, Color.White);
                 }
             } catch {
                 Console.WriteLine("Tile Exeception source");
