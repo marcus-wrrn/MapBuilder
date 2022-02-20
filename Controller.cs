@@ -6,10 +6,11 @@ using System;
 
 namespace Controller {
     
-    enum Commands { MENU_VISIBILITY, MOVE_MENU_MODE_SWITCH, DRAW_MODE_SWITCH, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT }
+    enum Commands { MENU_VISIBILITY, MOVE_MENU_MODE_SWITCH, DRAW_MODE_SWITCH, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, UPDATE_TILE_PRIMARY, UPDATE_TILE_SECONDARY }
 
     // to be used later to swap between different modes for the map editor
     enum ControllerMode { MOVE_MENU, DRAW }
+
 
     public class GameControl {
 
@@ -18,7 +19,6 @@ namespace Controller {
             public Keys Key{ get; set; }
             public Keys SecondaryKey{ get; set; }
             public bool IsPressed{ get; set; }
-
             public Commands effectName{get;}
 
             public Button(Keys key, Keys key2, Commands name) {
@@ -37,13 +37,14 @@ namespace Controller {
         }// end Button
 
         
-        private Button[] commandKeys;          // All Key commands with the shift 
+
+        private Button[] commandKeys;               // All Key commands with the shift 
         private ControllerMode mode;                // The mode that the controller is currently in
 
         public GameControl() {
             commandKeys = new Button[] {
                 // Toggles Menu Visibility
-                new Button(Keys.V, Keys.LeftShift, Commands.MENU_VISIBILITY), 
+                new Button(Keys.V, Keys.LeftShift, Commands.MENU_VISIBILITY),
                 // Toggles to Move Menu Mode
                 new Button(Keys.M, Keys.LeftShift, Commands.MOVE_MENU_MODE_SWITCH),
                 // Movement commands
@@ -52,18 +53,26 @@ namespace Controller {
                 new Button(Keys.Left, Commands.MOVE_LEFT),
                 new Button(Keys.Right, Commands.MOVE_RIGHT)
             };
+            
+
             mode = ControllerMode.DRAW;
         }// end GameControl
 
+        public void Update(MapBuilder.Game1 game, GameTime gameTime) {
+            MouseEffects(game);
+            CommandInputs(game, gameTime);
+        }
+
+
         // Checks keys to check if any MenuEffects should be triggered
-        public void MenuEffects(Game game, MenuSystem.TilePickerMenu menu, GameTime gameTime) {
+        public void CommandInputs(MapBuilder.Game1 game, GameTime gameTime) {
             KeyboardState kState = Keyboard.GetState();
             foreach(Button butt in commandKeys) {
                 // Switch case which goes through every available menu command 
                 switch (butt.effectName) {
                     case Commands.MENU_VISIBILITY:
                         // Toggles menu visibility
-                        UseCommand(kState, butt, () => menu.ToggleVisibility());
+                        UseCommand(kState, butt, () => game.TileMenu.ToggleVisibility());
                         break;
                     // Swap to move menu mode
                     case Commands.MOVE_MENU_MODE_SWITCH:
@@ -75,19 +84,19 @@ namespace Controller {
                         break;
                     case Commands.MOVE_UP:
                         if(mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
-                            menu.MoveUp(gameTime);
+                            game.TileMenu.MoveUp(gameTime);
                         break;
                     case Commands.MOVE_DOWN:
                         if(mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
-                            menu.MoveDown(gameTime);
+                            game.TileMenu.MoveDown(gameTime);
                         break;
                     case Commands.MOVE_RIGHT:
                         if(mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
-                            menu.MoveRight(gameTime);
+                            game.TileMenu.MoveRight(gameTime);
                         break;
                     case Commands.MOVE_LEFT:
                         if(mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
-                            menu.MoveLeft(gameTime);
+                            game.TileMenu.MoveLeft(gameTime);
                         break;
                     default:
                         break;
@@ -95,13 +104,25 @@ namespace Controller {
             }// end foreach loop
         }// end MenuEffects()
 
-
-        private void ToggleMenuVisibility(MenuSystem.TilePickerMenu menu, Button butt) {
-            if(!butt.IsPressed) {
-                menu.ToggleVisibility();
-                butt.IsPressed = true;
+        public void MouseEffects(MapBuilder.Game1 game) {
+            var mouseState = Mouse.GetState();
+            Vector2 mouseLoc = new Vector2(mouseState.X, mouseState.Y);
+            if(mouseState.LeftButton == ButtonState.Pressed) {
+                // Check to see if it clicked on a menu icon
+                Texture2D tempTile = game.TileMenu.GetTileTexture(mouseLoc);
+                if(tempTile != null)
+                    game.Brush.PrimaryTexture.Texture = tempTile;
+                else if(game.TileMenu.IfMenuClicked(mouseLoc)) {
+                    if(!game.TileMenu.MenuClicked)
+                        game.TileMenu.MenuClicked = true;
+                }    
+                // If the menu icon wasn't clicked update the tile below it
+                else {
+                    game.Map.UpdateTile(game.Brush.PrimaryTexture.Texture, mouseLoc);
+                    game.TileMenu.MenuClicked = false;
+                }
             }
-        }// end ToggleMenuVisibility()
+        }// end MouseEffects()
 
         private void UseCommand(KeyboardState kState, Button butt, Action action) {
             // If the secondary key does not exist or the secondary button is pressed
@@ -114,7 +135,7 @@ namespace Controller {
                 if(kState.IsKeyUp(butt.Key))
                     butt.IsPressed = false;
             }
-        }
+        }// end UseCommand()
 
-    }
+    }// end GameControl
 }
