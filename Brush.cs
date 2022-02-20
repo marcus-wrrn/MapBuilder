@@ -13,6 +13,7 @@ namespace Drawing {
         public Assets.GameAsset PrimaryTexture{ get; set; }
         public Assets.GameAsset SecondaryTexture{ get; set; }
         private int brushSize;
+        public bool ShowSecondary;
 
         // Constructors
         public Brush(Texture2D prim, Texture2D second, int size) {
@@ -21,6 +22,7 @@ namespace Drawing {
             PrimaryTexture = new Assets.GameAsset(prim);
             SecondaryTexture = new Assets.GameAsset(second);
             brushSize = size;
+            ShowSecondary = false;
         }// end main constructor
 
         public Brush(Texture2D prim, Texture2D second) : this(prim, second, 1) {}
@@ -53,8 +55,14 @@ namespace Drawing {
 
         public void DrawBrush(SpriteBatch spriteBatch) {
             try {
-                Rectangle sourceRectangle = new Rectangle((int)PrimaryTexture.Location.X, (int)PrimaryTexture.Location.Y, PrimaryTexture.Texture.Width, PrimaryTexture.Texture.Height);
-                spriteBatch.Draw(PrimaryTexture.Texture, sourceRectangle, null, Color.White);
+                if(!ShowSecondary) {
+                    Rectangle sourceRectangle = new Rectangle((int)PrimaryTexture.Location.X, (int)PrimaryTexture.Location.Y, PrimaryTexture.Texture.Width, PrimaryTexture.Texture.Height);
+                    spriteBatch.Draw(PrimaryTexture.Texture, sourceRectangle, null, Color.White);
+                }
+                else {
+                    Rectangle sourceRectangle = new Rectangle((int)SecondaryTexture.Location.X, (int)SecondaryTexture.Location.Y, SecondaryTexture.Texture.Width, SecondaryTexture.Texture.Height);
+                    spriteBatch.Draw(SecondaryTexture.Texture, sourceRectangle, null, Color.White);
+                }
             } catch {
                 Console.WriteLine("Tile Exeception source");
             }

@@ -59,7 +59,7 @@ namespace Controller {
         }// end GameControl
 
         public void Update(MapBuilder.Game1 game, GameTime gameTime) {
-            MouseEffects(game);
+            BrushInputManager(game);
             CommandInputs(game, gameTime);
         }
 
@@ -104,25 +104,40 @@ namespace Controller {
             }// end foreach loop
         }// end MenuEffects()
 
-        public void MouseEffects(MapBuilder.Game1 game) {
+        // Controls how the mouse inputs effect the Brushes Drawing ability
+        private void BrushInputManager(MapBuilder.Game1 game) {
             var mouseState = Mouse.GetState();
             Vector2 mouseLoc = new Vector2(mouseState.X, mouseState.Y);
             if(mouseState.LeftButton == ButtonState.Pressed) {
-                // Check to see if it clicked on a menu icon
-                Texture2D tempTile = game.TileMenu.GetTileTexture(mouseLoc);
-                if(tempTile != null)
-                    game.Brush.PrimaryTexture.Texture = tempTile;
-                else if(game.TileMenu.IfMenuClicked(mouseLoc)) {
-                    if(!game.TileMenu.MenuClicked)
-                        game.TileMenu.MenuClicked = true;
-                }    
-                // If the menu icon wasn't clicked update the tile below it
-                else {
-                    game.Map.UpdateTile(game.Brush.PrimaryTexture.Texture, mouseLoc);
-                    game.TileMenu.MenuClicked = false;
-                }
+                // Set Show Secondary to False
+                game.Brush.ShowSecondary = false;
+                BrushInputHelper(game, game.Brush.PrimaryTexture.Texture, mouseLoc);
             }
+            else if(mouseState.RightButton == ButtonState.Pressed) {
+                // Set Brush to display secondary Texture in its view
+                game.Brush.ShowSecondary = true;
+                BrushInputHelper(game, game.Brush.SecondaryTexture.Texture, mouseLoc);
+            }
+            else
+                game.Brush.ShowSecondary = false;
         }// end MouseEffects()
+
+        // Helps BrushInputManager by Making sure that the map is being updated Correctly
+        private void BrushInputHelper(MapBuilder.Game1 game, Texture2D texture, Vector2 mouseLoc) {
+            // Check to see if it clicked on a menu icon
+            Texture2D tempTile = game.TileMenu.GetTileTexture(mouseLoc);
+            if(tempTile != null)
+                texture = tempTile;
+            else if(game.TileMenu.IfMenuClicked(mouseLoc)) {
+                if(!game.TileMenu.MenuClicked)
+                    game.TileMenu.MenuClicked = true;
+            }    
+            // If the menu icon wasn't clicked update the tile below it
+            else {
+                game.Map.UpdateTile(texture, mouseLoc);
+                game.TileMenu.MenuClicked = false;
+            }
+        }
 
         private void UseCommand(KeyboardState kState, Button butt, Action action) {
             // If the secondary key does not exist or the secondary button is pressed
