@@ -6,10 +6,10 @@ using System;
 
 namespace Controller {
     
-    enum Commands { MENU_VISIBILITY, MOVE_MENU_MODE_SWITCH, DRAW_MODE_SWITCH, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, UPDATE_TILE_PRIMARY, UPDATE_TILE_SECONDARY }
+    enum Commands { MENU_VISIBILITY, MOVE_MENU_MODE_SWITCH, DRAW_MODE_SWITCH, BUCKET_MODE_SWITCH, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, UPDATE_TILE_PRIMARY, UPDATE_TILE_SECONDARY }
 
     // to be used later to swap between different modes for the map editor
-    enum ControllerMode { MOVE_MENU, DRAW }
+    enum ControllerMode { MOVE_MENU, DRAW, BUCKET_FILL }
 
 
     public class GameControl {
@@ -36,8 +36,6 @@ namespace Controller {
             }
         }// end Button
 
-        
-
         private Button[] commandKeys;               // All Key commands with the shift 
         private ControllerMode mode;                // The mode that the controller is currently in
 
@@ -47,6 +45,8 @@ namespace Controller {
                 new Button(Keys.V, Keys.LeftShift, Commands.MENU_VISIBILITY),
                 // Toggles to Move Menu Mode
                 new Button(Keys.M, Keys.LeftShift, Commands.MOVE_MENU_MODE_SWITCH),
+                // Toggles to Bucket Fill Mode
+                new Button(Keys.G, Commands.BUCKET_MODE_SWITCH),
                 // Movement commands
                 new Button(Keys.Up, Commands.MOVE_UP),
                 new Button(Keys.Down, Commands.MOVE_DOWN),
@@ -80,6 +80,12 @@ namespace Controller {
                         if(mode == ControllerMode.DRAW)
                             UseCommand(kState, butt, () => mode = ControllerMode.MOVE_MENU);
                         else if(mode == ControllerMode.MOVE_MENU)
+                            UseCommand(kState, butt, () => mode = ControllerMode.DRAW);
+                        break;
+                    case Commands.BUCKET_MODE_SWITCH:
+                        if(mode == ControllerMode.DRAW)
+                            UseCommand(kState, butt, () => mode = ControllerMode.BUCKET_FILL);
+                        else if(mode == ControllerMode.BUCKET_FILL)
                             UseCommand(kState, butt, () => mode = ControllerMode.DRAW);
                         break;
                     case Commands.MOVE_UP:
@@ -134,7 +140,10 @@ namespace Controller {
             }    
             // If the menu icon wasn't clicked update the tile below it
             else {
-                game.Map.UpdateTile(texture, mouseLoc);
+                if(mode == ControllerMode.DRAW)
+                    game.Map.UpdateTile(texture, mouseLoc);
+                else if(mode == ControllerMode.BUCKET_FILL)
+                    game.Brush.BucketFill(game.Map, mouseLoc, texture);
                 game.TileMenu.MenuClicked = false;
             }
         }

@@ -10,9 +10,10 @@ namespace Drawing {
     }// end BrushException
 
     public class Brush {
+        private enum Direction { UP, DOWN, LEFT, RIGHT }                        // Used for the bucket fill command helps make the algorithm more efficient
+        private int brushSize;
         public Assets.GameAsset PrimaryTexture{ get; set; }
         public Assets.GameAsset SecondaryTexture{ get; set; }
-        private int brushSize;
         public bool ShowSecondary;
 
         // Constructors
@@ -52,6 +53,64 @@ namespace Drawing {
                 SecondaryTexture.Location = brushLocation;
             }
         }
+        
+        public void BucketFill(Background map, Vector2 location, Texture2D texture) {
+            // Find Row and Column
+            int row = map.GetRowNumber(location);
+            int col = map.GetColumnNumber(location);
+            FillInBucket(map, row, col, texture);
+        }
+        private void FillInBucket(Background map, int row, int col, Texture2D texture) {
+            FillBucketUp(map, row, col, texture);
+            FillBucketRight(map, row, col, texture);
+            FillBucketDown(map, row, col, texture);
+            FillBucketLeft(map, row, col, texture);
+        }// end FillInBucket
+
+        private void FillBucketLeft(Background map, int row, int col, Texture2D texture) {
+            col--;
+            if(col >= map.Columns || col < 0)
+                return;
+            var tile = map.GetTile(row, col);
+            if(tile.Texture == texture)
+                return;
+            tile.Texture = texture;
+            FillInBucket(map, row, col, texture);
+        }// end FillBucketLeft()
+
+        private void FillBucketRight(Background map, int row, int col, Texture2D texture) {
+            col++;
+            if(col >= map.Columns || col < 0)
+                return;
+            var tile = map.GetTile(row, col);
+            if(tile.Texture == texture)
+                return;
+            tile.Texture = texture;
+            FillInBucket(map, row, col, texture);
+        }// end FillBucketRight()
+
+        private void FillBucketUp(Background map, int row, int col, Texture2D texture) {
+            row--;
+            if(row >= map.Rows || row < 0)
+                return;
+            var tile = map.GetTile(row, col);
+            if(tile.Texture == texture)
+                return;
+            tile.Texture = texture;
+            FillInBucket(map, row, col, texture);
+        }// end FillBucketUp()
+
+        private void FillBucketDown(Background map, int row, int col, Texture2D texture) {
+            row++;
+            if(row >= map.Rows || row < 0)
+                return;
+            var tile = map.GetTile(row, col);
+            if(tile.Texture == texture)
+                return;
+            tile.Texture = texture;
+            FillInBucket(map, row, col, texture);
+        }// end FillBucketDown()
+
 
         public void DrawBrush(SpriteBatch spriteBatch) {
             try {

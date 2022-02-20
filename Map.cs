@@ -65,6 +65,16 @@ namespace TileMap {
             }
         }// end GenerateMap()
 
+
+        public int GetColumnNumber(Vector2 location) {
+            return (int)(location.X/BaseTile.Height);
+        }
+
+        public int GetRowNumber(Vector2 location) {
+            return (int)(location.Y/BaseTile.Width);
+        }
+
+
         public void Draw(SpriteBatch spriteBatch) {
             for(int i = 0; i < Rows; i++) {
                 for(int j = 0; j < Columns; j++) {
@@ -94,6 +104,8 @@ namespace TileMap {
                 Console.WriteLine("Divide by zero error");
             }
         }// end updateTile()
+
+        
 
         public GameAsset GetTile(int row, int col) {
             if(row >= map.GetLength(0) || row < 0 || col >= map.GetLength(1) || col < 0)
