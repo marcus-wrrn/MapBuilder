@@ -9,7 +9,7 @@ namespace Controller {
     enum Commands { MENU_VISIBILITY, MOVE_MENU_MODE_SWITCH, DRAW_MODE_SWITCH, BUCKET_MODE_SWITCH, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, UPDATE_TILE_PRIMARY, UPDATE_TILE_SECONDARY }
 
     // to be used later to swap between different modes for the map editor
-    enum ControllerMode { MOVE_MENU, DRAW, BUCKET_FILL }
+    enum ControllerMode { MOVE_MENU, DRAW, BUCKET_FILL, SNAKE }
 
 
     public class GameControl {
@@ -55,7 +55,7 @@ namespace Controller {
             };
             
 
-            mode = ControllerMode.DRAW;
+            mode = ControllerMode.SNAKE;
         }// end GameControl
 
         public void Update(MapBuilder.Game1 game, GameTime gameTime) {
@@ -91,18 +91,26 @@ namespace Controller {
                     case Commands.MOVE_UP:
                         if(mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
                             game.TileMenu.MoveUp(gameTime);
+                        else if (mode == ControllerMode.SNAKE && kState.IsKeyDown(butt.Key))
+                            game.Snake.MoveUp();
                         break;
                     case Commands.MOVE_DOWN:
                         if(mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
                             game.TileMenu.MoveDown(gameTime);
+                        else if (mode == ControllerMode.SNAKE && kState.IsKeyDown(butt.Key))
+                            game.Snake.MoveDown();
                         break;
                     case Commands.MOVE_RIGHT:
                         if(mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
                             game.TileMenu.MoveRight(gameTime);
+                        else if (mode == ControllerMode.SNAKE && kState.IsKeyDown(butt.Key))
+                            game.Snake.MoveRight();
                         break;
                     case Commands.MOVE_LEFT:
                         if(mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
                             game.TileMenu.MoveLeft(gameTime);
+                        else if (mode == ControllerMode.SNAKE && kState.IsKeyDown(butt.Key))
+                            game.Snake.MoveLeft();
                         break;
                     default:
                         break;

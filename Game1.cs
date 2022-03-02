@@ -8,11 +8,14 @@ namespace MapBuilder
 {
     public class Game1 : Game
     {   
+        private float SNAKE_SPEED = 500;
         private GraphicsDeviceManager _graphics;
         public SpriteBatch _spriteBatch;
         public Background Map;
         public TilePickerMenu TileMenu;
         public Drawing.Brush Brush;
+        public SnakeObjects.Fruit SnakeFruit;
+        public SnakeObjects.Snake Snake;
         private string fileName = "test";
         private Controller.GameControl controller;
         public Game1()
@@ -41,6 +44,10 @@ namespace MapBuilder
             // background = new Background(currentTile, (int)(_graphics.PreferredBackBufferHeight / currentTile.Height), (int)(_graphics.PreferredBackBufferWidth / currentTile.Width));
             TileMenu = new TilePickerMenu(test, 0, new Vector2(_graphics.PreferredBackBufferWidth - menuTexture.Width, 0), menuTexture);
             Brush = new Drawing.Brush(Content.Load<Texture2D>("tile"), Content.Load<Texture2D>("tile2Test"));
+
+            var snakeAsset = new Assets.GameAsset(Content.Load<Texture2D>("tile2Test"), new Vector2(0.0f, 0.0f), SNAKE_SPEED);
+            Snake = new SnakeObjects.Snake(snakeAsset, Map);
+            SnakeFruit = new SnakeObjects.Fruit(snakeAsset, Map, Snake);
         }
 
         protected override void LoadContent()
@@ -67,6 +74,11 @@ namespace MapBuilder
             // If e was pressed export the map to a binary file
             if(Keyboard.GetState().IsKeyDown(Keys.E))
                 Map.ExportToBinary(fileName);
+            if(Keyboard.GetState().IsKeyDown(Keys.G))
+                Snake.GrowBody();
+
+            Snake.Update(gameTime);
+            SnakeFruit.Update();
 
             base.Update(gameTime);
         }
@@ -79,6 +91,8 @@ namespace MapBuilder
             Map.Draw(_spriteBatch);
             Brush.DrawBrush(_spriteBatch);
             TileMenu.Draw(_spriteBatch);
+            Snake.Draw(_spriteBatch);
+            SnakeFruit.Draw(_spriteBatch);
 
             _spriteBatch.End();
             // TODO: Add your drawing code here
