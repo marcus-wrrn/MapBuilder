@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace Assets {
+
     // Base class used for all Assets
     public class GameAsset {
         public Texture2D Texture{ get; set; }   // texture of the asset
@@ -51,7 +52,8 @@ namespace Assets {
         }// end MoveLeft()
 
         public void Draw(SpriteBatch spriteBatch) {
-            spriteBatch.Draw(Texture, Location, null, Color.White, 0f, new Vector2(Texture.Width / 2, Texture.Height / 2), Vector2.One, SpriteEffects.None, 0f);
+            Rectangle sourceRectangle = new Rectangle((int)Location.X, (int)Location.Y, Texture.Width, Texture.Height);
+            spriteBatch.Draw(Texture, sourceRectangle, null, Color.White);
         }// Draws the texture
     }
 }

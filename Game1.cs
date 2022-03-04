@@ -13,8 +13,11 @@ namespace MapBuilder
         public Background Map;
         public TilePickerMenu TileMenu;
         public Drawing.Brush Brush;
+        public SnakeObjects.Fruit SnakeFruit;
+        public SnakeObjects.Snake Snake;
         private string fileName = "test";
         private Controller.GameControl controller;
+        private bool IsNotGameOver = true;
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -37,10 +40,13 @@ namespace MapBuilder
             test[0] = Content.Load<Texture2D>("tile");
             Texture2D menuTexture = Content.Load<Texture2D>("Menu");
             // Create Map
-            Map = new Background(fileName, this);
+            //Map = new Background(fileName, this);
+            Map = new Background(Content.Load<Texture2D>("tile"), 16, 28);
             // background = new Background(currentTile, (int)(_graphics.PreferredBackBufferHeight / currentTile.Height), (int)(_graphics.PreferredBackBufferWidth / currentTile.Width));
             TileMenu = new TilePickerMenu(test, 0, new Vector2(_graphics.PreferredBackBufferWidth - menuTexture.Width, 0), menuTexture);
             Brush = new Drawing.Brush(Content.Load<Texture2D>("tile"), Content.Load<Texture2D>("tile2Test"));
+            Snake = new SnakeObjects.Snake(Content.Load<Texture2D>("tile2Test"), Map);
+            SnakeFruit = new SnakeObjects.Fruit(Content.Load<Texture2D>("tile2Test"), Map, Snake);
         }
 
         protected override void LoadContent()
@@ -67,7 +73,11 @@ namespace MapBuilder
             // If e was pressed export the map to a binary file
             if(Keyboard.GetState().IsKeyDown(Keys.E))
                 Map.ExportToBinary(fileName);
-
+            if(IsNotGameOver) {
+                IsNotGameOver = Snake.PlaySnake(gameTime);
+                SnakeFruit.Update();
+            }
+                
             base.Update(gameTime);
         }
 
@@ -79,6 +89,8 @@ namespace MapBuilder
             Map.Draw(_spriteBatch);
             Brush.DrawBrush(_spriteBatch);
             TileMenu.Draw(_spriteBatch);
+            Snake.Draw(_spriteBatch);
+            SnakeFruit.Draw(_spriteBatch);
 
             _spriteBatch.End();
             // TODO: Add your drawing code here
