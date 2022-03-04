@@ -24,7 +24,6 @@ namespace TileMap {
             Rows = rows;
             Columns = columns;
             map = new GameAsset[rows, columns];
-            Console.WriteLine("Rows: {0}\nColomns: {0}", rows, columns);
             // Create background
             GenerateMap();
         }// end Constructor
@@ -107,11 +106,15 @@ namespace TileMap {
 
         
 
+        public bool IsOnMap(int row, int col) {
+            return row < map.GetLength(0) && row >= 0 && col < map.GetLength(1) && col >= 0;
+        }// end IsOnMap()
+
         public GameAsset GetTile(int row, int col) {
             if(row >= map.GetLength(0) || row < 0 || col >= map.GetLength(1) || col < 0)
                 throw new BackgroundException("Brush is out of bounds of the map");
             return map[row,col];
-        }
+        }// end GetTile()
 
         public void ExportToBinary(string fileName) {
             // Create Binary file                 

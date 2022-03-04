@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace Assets {
+
     // Base class used for all Assets
     public class GameAsset {
         public Texture2D Texture{ get; set; }   // texture of the asset
