@@ -15,6 +15,7 @@ namespace MapBuilder
         public Drawing.Brush Brush;
         public SnakeObjects.Fruit SnakeFruit;
         public SnakeObjects.Snake Snake;
+        private SpriteFont Font;
         private string fileName = "test";
         private Controller.GameControl controller;
         public bool IsNotGameOver = true;
@@ -47,6 +48,7 @@ namespace MapBuilder
             Brush = new Drawing.Brush(Content.Load<Texture2D>("tile"), Content.Load<Texture2D>("tile2Test"));
             Snake = new SnakeObjects.Snake(Content.Load<Texture2D>("tile2Test"), Map);
             SnakeFruit = new SnakeObjects.Fruit(Content.Load<Texture2D>("tile2Test"), Map, Snake);
+            Font = Content.Load<SpriteFont>("CustomFont");
         }
 
         protected override void LoadContent()
@@ -90,6 +92,9 @@ namespace MapBuilder
             TileMenu.Draw(_spriteBatch);
             Snake.Draw(_spriteBatch);
             SnakeFruit.Draw(_spriteBatch);
+
+            // Draw Font
+            _spriteBatch.DrawString(Font, "Score: " + (Snake.GetLength() - 1), new Vector2(3000, 500), Color.Black);
             
             _spriteBatch.End();
             // TODO: Add your drawing code here

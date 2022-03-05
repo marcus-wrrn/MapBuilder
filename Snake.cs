@@ -88,7 +88,7 @@ namespace SnakeObjects {
         private const int SNAKE_SPEED = 5;
         private int SnakeCount = 0;
         private Assets.GameAsset BaseAsset{ get; set; }
-        public List<SnakeParts> Body{ get; set; }
+        private List<SnakeParts> Body{ get; set; }
         private TileMap.Background background;
 
         public Snake(Texture2D texture, TileMap.Background bckground) {
@@ -271,6 +271,10 @@ namespace SnakeObjects {
             Console.WriteLine("WTF");
             Body.Clear();
             Body.Add(new SnakeParts(Movement.DOWN, BaseAsset, background));
+        }// end ResetSnake()
+
+        public int GetLength() {
+            return Body.Count;
         }
 
         public void Draw(SpriteBatch spriteBatch) {

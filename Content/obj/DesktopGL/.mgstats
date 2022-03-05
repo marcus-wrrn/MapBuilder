@@ -1,5 +1,6 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
 "/home/marcus/Projects/MapBuilder/MapBuilder/Content/Ball.png","/home/marcus/Projects/MapBuilder/MapBuilder/Content/bin/DesktopGL/Ball.xnb","TextureProcessor","Texture2DContent",679,36949,0.1340498
+"/home/marcus/Projects/MapBuilder/MapBuilder/Content/CustomFont.spritefont","/home/marcus/Projects/MapBuilder/MapBuilder/Content/bin/DesktopGL/CustomFont.xnb","FontDescriptionProcessor","SpriteFontContent",2008,70690,0.2030196
 "/home/marcus/Projects/MapBuilder/MapBuilder/Content/Menu.png","/home/marcus/Projects/MapBuilder/MapBuilder/Content/bin/DesktopGL/Menu.xnb","TextureProcessor","Texture2DContent",4854,2211925,0.2011679
 "/home/marcus/Projects/MapBuilder/MapBuilder/Content/tile.png","/home/marcus/Projects/MapBuilder/MapBuilder/Content/bin/DesktopGL/tile.xnb","TextureProcessor","Texture2DContent",504,16469,0.0012376
 "/home/marcus/Projects/MapBuilder/MapBuilder/Content/tile2Test.png","/home/marcus/Projects/MapBuilder/MapBuilder/Content/bin/DesktopGL/tile2Test.xnb","TextureProcessor","Texture2DContent",224,16469,0.1236303

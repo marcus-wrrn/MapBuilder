@@ -5,11 +5,13 @@
   <Config />
   <SourceFiles>
     <File>/home/marcus/Projects/MapBuilder/MapBuilder/Content/Ball.png</File>
+    <File>/home/marcus/Projects/MapBuilder/MapBuilder/Content/CustomFont.spritefont</File>
     <File>/home/marcus/Projects/MapBuilder/MapBuilder/Content/Menu.png</File>
     <File>/home/marcus/Projects/MapBuilder/MapBuilder/Content/tile.png</File>
     <File>/home/marcus/Projects/MapBuilder/MapBuilder/Content/tile2Test.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
