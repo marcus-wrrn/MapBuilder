@@ -39,19 +39,15 @@ namespace TileMap {
                 BinaryReader binReader = new BinaryReader(new FileStream(fileName, FileMode.Open));
                 Rows = binReader.ReadInt32();
                 Columns = binReader.ReadInt32();
+                // Get the Offset
+                OffSet = new Vector2();
+                OffSet.X = (float)binReader.ReadDouble();
+                OffSet.Y = (float)binReader.ReadDouble();
                 // Load in the baseTile
                 BaseTile = game.Content.Load<Texture2D>(binReader.ReadString());
                 // Load in Map
                 map = new GameAsset[Rows, Columns];
-                Vector2 location = new Vector2(0,0);
-                for(int i = 0; i < Rows; i++) {
-                    for(int j = 0; j < Columns; j++) { 
-                        map[i,j] = new GameAsset(game.Content.Load<Texture2D>(binReader.ReadString()), location);
-                        location.X += BaseTile.Width;
-                    }
-                    location.Y += BaseTile.Height;
-                    location.X = 0;
-                }
+                GenerateMap();
             } catch {
                     Console.WriteLine("Failed to load map");
             }
@@ -128,6 +124,9 @@ namespace TileMap {
                     // Records total number of elements in the map
                     binWriter.Write(Rows);
                     binWriter.Write(Columns);
+                    // Record the OffSet of the map
+                    binWriter.Write((double)OffSet.X);
+                    binWriter.Write((double)OffSet.Y);
                     // Creates a list of all tiles used for the map
                     string[] textureList = new string[0];
                     binWriter.Write(BaseTile.Name);
