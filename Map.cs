@@ -17,8 +17,11 @@ namespace TileMap {
         public int Columns { get; set; }            // Number of columns in the map
         public Texture2D BaseTile { get; set; }     // Reference texture
 
+        private Vector2 OffSet;
+
         // Constructor to build the map from scratch
         public Background(Texture2D baseTile, int rows, int columns) {
+            OffSet = new Vector2(200, 60);
             // Initialize variables
             BaseTile = baseTile;
             Rows = rows;
@@ -53,24 +56,24 @@ namespace TileMap {
         }// end constructor from file
 
         private void GenerateMap() {
-            Vector2 location = new Vector2(0,0);
+            Vector2 location = new Vector2(OffSet.X,OffSet.Y);
             for (int i = 0; i < Rows; i++) {
                 for(int j = 0; j < Columns; j++) {
                     map[i,j] = new GameAsset(BaseTile, location);
                     location.X += BaseTile.Width;
                 }
                 location.Y += BaseTile.Height;
-                location.X = 0;
+                location.X = OffSet.X;
             }
         }// end GenerateMap()
 
 
         public int GetColumnNumber(Vector2 location) {
-            return (int)(location.X/BaseTile.Height);
+            return (int)((location.X - OffSet.X)/BaseTile.Height);
         }
 
         public int GetRowNumber(Vector2 location) {
-            return (int)(location.Y/BaseTile.Width);
+            return (int)((location.Y - OffSet.Y)/BaseTile.Width);
         }
 
 
@@ -95,8 +98,8 @@ namespace TileMap {
         public void UpdateTile(Texture2D tile, Vector2 location) {
             try {
                 // Find the tile location 
-                int col = (int)(location.X/BaseTile.Height);
-                int row = (int)(location.Y/BaseTile.Width);
+                int col = (int)((location.X)/BaseTile.Height);
+                int row = (int)((location.Y)/BaseTile.Width + OffSet.X);
                 // Replace tile
                 map[row,col].Texture = tile;
             }  catch {
@@ -112,7 +115,7 @@ namespace TileMap {
 
         public GameAsset GetTile(int row, int col) {
             if(row >= map.GetLength(0) || row < 0 || col >= map.GetLength(1) || col < 0)
-                throw new BackgroundException("Brush is out of bounds of the map");
+                throw new BackgroundException("Values out of bound\nRow: " + row + "\nCol: " + col);
             return map[row,col];
         }// end GetTile()
 
