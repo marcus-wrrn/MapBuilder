@@ -17,7 +17,7 @@ namespace MapBuilder
         public SnakeObjects.Snake Snake;
         private string fileName = "test";
         private Controller.GameControl controller;
-        private bool IsNotGameOver = true;
+        public bool IsNotGameOver = true;
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -97,6 +97,10 @@ namespace MapBuilder
             base.Draw(gameTime);
         }
 
-        
+        public void ResetGame() {
+            Snake.ResetSnake();
+            SnakeFruit.GenerateLocation();
+            IsNotGameOver = true;
+        }
     }
 }
