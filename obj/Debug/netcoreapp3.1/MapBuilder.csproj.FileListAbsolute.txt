@@ -26,3 +26,4 @@
 /home/marcus/Projects/MapBuilder/MapBuilder/obj/Debug/netcoreapp3.1/MapBuilder.pdb
 /home/marcus/Projects/MapBuilder/MapBuilder/obj/Debug/netcoreapp3.1/MapBuilder.genruntimeconfig.cache
 /home/marcus/Projects/MapBuilder/MapBuilder/bin/Debug/netcoreapp3.1/Content/Menu.xnb
+/home/marcus/Projects/MapBuilder/MapBuilder/bin/Debug/netcoreapp3.1/Content/CustomFont.xnb
