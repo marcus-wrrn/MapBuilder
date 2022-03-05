@@ -40,8 +40,8 @@ namespace MapBuilder
             test[0] = Content.Load<Texture2D>("tile");
             Texture2D menuTexture = Content.Load<Texture2D>("Menu");
             // Create Map
-            //Map = new Background(fileName, this);
-            Map = new Background(Content.Load<Texture2D>("tile"), new Vector2(50, 50), 30, 40);
+            Map = new Background(fileName, this);
+            //Map = new Background(Content.Load<Texture2D>("tile"), new Vector2(50, 50), 30, 40);
             // background = new Background(currentTile, (int)(_graphics.PreferredBackBufferHeight / currentTile.Height), (int)(_graphics.PreferredBackBufferWidth / currentTile.Width));
             TileMenu = new TilePickerMenu(test, 0, new Vector2(_graphics.PreferredBackBufferWidth - menuTexture.Width, 0), menuTexture);
             Brush = new Drawing.Brush(Content.Load<Texture2D>("tile"), Content.Load<Texture2D>("tile2Test"));
