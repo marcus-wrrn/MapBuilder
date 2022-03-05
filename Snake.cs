@@ -87,24 +87,32 @@ namespace SnakeObjects {
     public class Snake {
         private const int SNAKE_SPEED = 5;
         private int SnakeCount = 0;
-        public Assets.GameAsset BaseAsset{ get; set; }
+        private Assets.GameAsset BaseAsset{ get; set; }
         public List<SnakeParts> Body{ get; set; }
         private TileMap.Background background;
 
         public Snake(Texture2D texture, TileMap.Background bckground) {
-            int row = bckground.Rows/2;
-            int col = bckground.Columns/2;
-            Console.WriteLine("Rows: " + row + "\nCol: " + col);
-            var location = bckground.GetTile(row, col).Location;
-            Assets.GameAsset baseTile = new Assets.GameAsset(texture, location, SNAKE_SPEED);
-            BaseAsset = baseTile;
-            //Find the row and colums
-            Body = new List<SnakeParts>();
-            Body.Add(new SnakeParts(Movement.DOWN, baseTile, bckground));
             background = bckground;
-
+            // Set BaseAsset 
+            SetBaseAsset(texture);
+            // Set the Bodies state to its starting position
+            SetDefaultSnake();
         }// end constructor()
 
+        private void SetBaseAsset(Texture2D texture) {
+            // Set the BaseAsset
+            int row = background.Rows/2;
+            int col = background.Columns/2;
+            var location = background.GetTile(row, col).Location;
+            Assets.GameAsset baseTile = new Assets.GameAsset(texture, location, SNAKE_SPEED);
+            BaseAsset = baseTile;
+        }// end SetBaseAsset()
+
+        // Sets the snake state to its starting state (i.e resets the game)
+        private void SetDefaultSnake() {
+            Body = new List<SnakeParts>();
+            Body.Add(new SnakeParts(Movement.DOWN, BaseAsset, background));
+        }// end SetDefaultSnake()
         
         // Both SetNewPartLoc() and MoveLocation have the same code except their values are reversed
         private void SetNewPartLoc(SnakeParts part) {
@@ -259,12 +267,19 @@ namespace SnakeObjects {
             return false;
         }// end IsGameOver()
 
+        public void ResetSnake() {
+            Console.WriteLine("WTF");
+            Body.Clear();
+            Body.Add(new SnakeParts(Movement.DOWN, BaseAsset, background));
+        }
+
         public void Draw(SpriteBatch spriteBatch) {
             foreach(var part in Body) {
                 part.Draw(spriteBatch);
             }
         }
 
+        
     }// end Snake
 
 }// end SnakeObjects namespacee

@@ -6,7 +6,10 @@ using System;
 
 namespace Controller {
     
-    enum Commands { MENU_VISIBILITY, MOVE_MENU_MODE_SWITCH, DRAW_MODE_SWITCH, BUCKET_MODE_SWITCH, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, UPDATE_TILE_PRIMARY, UPDATE_TILE_SECONDARY }
+    enum Commands { MENU_VISIBILITY, MOVE_MENU_MODE_SWITCH, DRAW_MODE_SWITCH, 
+    BUCKET_MODE_SWITCH, MOVE_UP, MOVE_DOWN, MOVE_LEFT, 
+    MOVE_RIGHT, UPDATE_TILE_PRIMARY, UPDATE_TILE_SECONDARY,
+    RESET_SNAKE }
 
     // to be used later to swap between different modes for the map editor
     enum ControllerMode { MOVE_MENU, DRAW, BUCKET_FILL, SNAKE }
@@ -47,6 +50,7 @@ namespace Controller {
                 new Button(Keys.M, Keys.LeftShift, Commands.MOVE_MENU_MODE_SWITCH),
                 // Toggles to Bucket Fill Mode
                 new Button(Keys.G, Commands.BUCKET_MODE_SWITCH),
+                new Button(Keys.R, Keys.LeftShift, Commands.RESET_SNAKE),
                 // Movement commands
                 new Button(Keys.Up, Commands.MOVE_UP),
                 new Button(Keys.Down, Commands.MOVE_DOWN),
@@ -77,37 +81,42 @@ namespace Controller {
                     // Swap to move menu mode
                     case Commands.MOVE_MENU_MODE_SWITCH:
                         // Toggles to move menu mode
-                        if(mode == ControllerMode.DRAW)
+                        if (mode == ControllerMode.DRAW)
                             UseCommand(kState, butt, () => mode = ControllerMode.MOVE_MENU);
                         else if(mode == ControllerMode.MOVE_MENU)
                             UseCommand(kState, butt, () => mode = ControllerMode.DRAW);
                         break;
                     case Commands.BUCKET_MODE_SWITCH:
-                        if(mode == ControllerMode.DRAW)
+                        if (mode == ControllerMode.DRAW)
                             UseCommand(kState, butt, () => mode = ControllerMode.BUCKET_FILL);
                         else if(mode == ControllerMode.BUCKET_FILL)
                             UseCommand(kState, butt, () => mode = ControllerMode.DRAW);
                         break;
+                    case Commands.RESET_SNAKE:
+                        if (mode == ControllerMode.SNAKE) {
+                            UseCommand(kState, butt, () => game.ResetGame());
+                        }
+                        break;
                     case Commands.MOVE_UP:
-                        if(mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
+                        if (mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
                             game.TileMenu.MoveUp(gameTime);
                         else if (mode == ControllerMode.SNAKE && kState.IsKeyDown(butt.Key))
                             game.Snake.MoveUp();
                         break;
                     case Commands.MOVE_DOWN:
-                        if(mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
+                        if (mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
                             game.TileMenu.MoveDown(gameTime);
                         else if (mode == ControllerMode.SNAKE && kState.IsKeyDown(butt.Key))
                             game.Snake.MoveDown();
                         break;
                     case Commands.MOVE_RIGHT:
-                        if(mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
+                        if (mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
                             game.TileMenu.MoveRight(gameTime);
                         else if (mode == ControllerMode.SNAKE && kState.IsKeyDown(butt.Key))
                             game.Snake.MoveRight();
                         break;
                     case Commands.MOVE_LEFT:
-                        if(mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
+                        if (mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
                             game.TileMenu.MoveLeft(gameTime);
                         else if (mode == ControllerMode.SNAKE && kState.IsKeyDown(butt.Key))
                             game.Snake.MoveLeft();
@@ -122,12 +131,12 @@ namespace Controller {
         private void BrushInputManager(MapBuilder.Game1 game) {
             var mouseState = Mouse.GetState();
             Vector2 mouseLoc = new Vector2(mouseState.X, mouseState.Y);
-            if(mouseState.LeftButton == ButtonState.Pressed) {
+            if (mouseState.LeftButton == ButtonState.Pressed) {
                 // Set Show Secondary to False
                 game.Brush.ShowSecondary = false;
                 BrushInputHelper(game, mouseLoc);
             }
-            else if(mouseState.RightButton == ButtonState.Pressed) {
+            else if (mouseState.RightButton == ButtonState.Pressed) {
                 // Set Brush to display secondary Texture in its view
                 game.Brush.ShowSecondary = true;
                 BrushInputHelper(game, mouseLoc);
@@ -142,16 +151,16 @@ namespace Controller {
             Texture2D texture = game.Brush.GetCurrentTile().Texture;
             // Check to see if it clicked on a menu icon
             Texture2D tempTile = game.TileMenu.GetTileTexture(mouseLoc);
-            if(tempTile != null) {
+            if (tempTile != null) {
                 game.Brush.ChangeTexture(tempTile);
             }
-            else if(game.TileMenu.IfMenuClicked(mouseLoc)) {
+            else if (game.TileMenu.IfMenuClicked(mouseLoc)) {
                 if(!game.TileMenu.MenuClicked)
                     game.TileMenu.MenuClicked = true;
             }    
             // If the menu icon wasn't clicked update the tile below it
             else {
-                if(mode == ControllerMode.DRAW)
+                if (mode == ControllerMode.DRAW)
                     game.Map.UpdateTile(texture, mouseLoc);
                 else if(mode == ControllerMode.BUCKET_FILL)
                     game.Brush.BucketFill(game.Map, mouseLoc, texture);
@@ -161,13 +170,13 @@ namespace Controller {
 
         private void UseCommand(KeyboardState kState, Button butt, Action action) {
             // If the secondary key does not exist or the secondary button is pressed
-            if(butt.SecondaryKey == Keys.None || kState.IsKeyDown(butt.SecondaryKey)) {
-                if(kState.IsKeyDown(butt.Key))
-                    if(!butt.IsPressed) {
+            if (butt.SecondaryKey == Keys.None || kState.IsKeyDown(butt.SecondaryKey)) {
+                if (kState.IsKeyDown(butt.Key))
+                    if (!butt.IsPressed) {
                         action();
                         butt.IsPressed = true;
                     }
-                if(kState.IsKeyUp(butt.Key))
+                if (kState.IsKeyUp(butt.Key))
                     butt.IsPressed = false;
             }
         }// end UseCommand()
