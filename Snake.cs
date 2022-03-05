@@ -63,11 +63,6 @@ namespace SnakeObjects {
             Row = bckground.GetRowNumber(asset.Location);
             Col = bckground.GetColumnNumber(asset.Location);
         }
-        private SnakeParts(Movement direction, int row, int col, Assets.GameAsset asset) : base(asset.Texture) {
-            Row = row;
-            Col = col;
-            Direction = direction;
-        }
         public SnakeParts GetClone() {
             return new SnakeParts(Direction, this, Background);
         }
@@ -99,6 +94,7 @@ namespace SnakeObjects {
         public Snake(Texture2D texture, TileMap.Background bckground) {
             int row = bckground.Rows/2;
             int col = bckground.Columns/2;
+            Console.WriteLine("Rows: " + row + "\nCol: " + col);
             var location = bckground.GetTile(row, col).Location;
             Assets.GameAsset baseTile = new Assets.GameAsset(texture, location, SNAKE_SPEED);
             BaseAsset = baseTile;
@@ -123,7 +119,7 @@ namespace SnakeObjects {
                     break;
                 case Movement.DOWN:
                     part.Row++;
-                    part.Location = new Vector2(background.GetTile(part.Row, part.Col).Location.X, background.GetTile(part.Row, part.Col).Location.Y);
+                    part.Location = background.GetTile(part.Row, part.Col).Location;
                     break;
                 // by default it moves up
                 default:

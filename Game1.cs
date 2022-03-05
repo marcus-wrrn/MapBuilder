@@ -41,7 +41,7 @@ namespace MapBuilder
             Texture2D menuTexture = Content.Load<Texture2D>("Menu");
             // Create Map
             //Map = new Background(fileName, this);
-            Map = new Background(Content.Load<Texture2D>("tile"), 16, 28);
+            Map = new Background(Content.Load<Texture2D>("tile"), new Vector2(50, 50), 30, 40);
             // background = new Background(currentTile, (int)(_graphics.PreferredBackBufferHeight / currentTile.Height), (int)(_graphics.PreferredBackBufferWidth / currentTile.Width));
             TileMenu = new TilePickerMenu(test, 0, new Vector2(_graphics.PreferredBackBufferWidth - menuTexture.Width, 0), menuTexture);
             Brush = new Drawing.Brush(Content.Load<Texture2D>("tile"), Content.Load<Texture2D>("tile2Test"));
@@ -52,7 +52,6 @@ namespace MapBuilder
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            
         }
 
         protected override void Update(GameTime gameTime)
@@ -83,15 +82,15 @@ namespace MapBuilder
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Aquamarine);
             _spriteBatch.Begin();
 
             Map.Draw(_spriteBatch);
-            Brush.DrawBrush(_spriteBatch);
+            //Brush.DrawBrush(_spriteBatch);
             TileMenu.Draw(_spriteBatch);
             Snake.Draw(_spriteBatch);
             SnakeFruit.Draw(_spriteBatch);
-
+            
             _spriteBatch.End();
             // TODO: Add your drawing code here
 
