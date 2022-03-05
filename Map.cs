@@ -20,8 +20,8 @@ namespace TileMap {
         private Vector2 OffSet;
 
         // Constructor to build the map from scratch
-        public Background(Texture2D baseTile, int rows, int columns) {
-            OffSet = new Vector2(200, 60);
+        public Background(Texture2D baseTile, Vector2 offSet, int rows, int columns) {
+            OffSet = offSet;
             // Initialize variables
             BaseTile = baseTile;
             Rows = rows;
@@ -30,6 +30,8 @@ namespace TileMap {
             // Create background
             GenerateMap();
         }// end Constructor
+
+        public Background(Texture2D baseTile, int rows, int columns) : this(baseTile, new Vector2(0f, 0f), rows, columns){}
 
         // Constructor to build a map from a file
         public Background(string fileName, Game game) {
