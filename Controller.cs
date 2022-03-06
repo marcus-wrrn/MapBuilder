@@ -176,9 +176,9 @@ namespace Controller {
                         action();
                         butt.IsPressed = true;
                     }
-                if (kState.IsKeyUp(butt.Key))
-                    butt.IsPressed = false;
             }
+            if (kState.IsKeyUp(butt.Key))
+                    butt.IsPressed = false;
         }// end UseCommand()
 
     }// end GameControl

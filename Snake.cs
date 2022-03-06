@@ -86,12 +86,15 @@ namespace SnakeObjects {
 
     public class Snake {
         private const int SNAKE_SPEED = 5;
+        // Direction to determine the location of the snake head for each frame, used so the player turn the snake a full 180 and end the game on a single frame
+        private Movement SnakeHeadDirection;
         private int SnakeCount = 0;
         private Assets.GameAsset BaseAsset{ get; set; }
         private List<SnakeParts> Body{ get; set; }
         private TileMap.Background background;
 
         public Snake(Texture2D texture, TileMap.Background bckground) {
+            SnakeHeadDirection = Movement.DOWN;
             background = bckground;
             // Set BaseAsset 
             SetBaseAsset(texture);
@@ -111,7 +114,7 @@ namespace SnakeObjects {
         // Sets the snake state to its starting state (i.e resets the game)
         private void SetDefaultSnake() {
             Body = new List<SnakeParts>();
-            Body.Add(new SnakeParts(Movement.DOWN, BaseAsset, background));
+            Body.Add(new SnakeParts(SnakeHeadDirection, BaseAsset, background));
         }// end SetDefaultSnake()
         
         // Both SetNewPartLoc() and MoveLocation have the same code except their values are reversed
@@ -138,7 +141,6 @@ namespace SnakeObjects {
         }// end SetNewPartLoc()
 
         private void MoveLocation(SnakeParts part) {
-            var location = part.Location;
             switch (part.Direction) {
                 case Movement.RIGHT:
                     part.MoveRight();
@@ -175,24 +177,28 @@ namespace SnakeObjects {
 
         // Movement functions designed to update the first snake parts direction
         public void MoveUp() {
-            if(Body[0].Direction != Movement.DOWN)
+            // Checks if the head of the snake is moving in the opposite direction
+            if(SnakeHeadDirection != Movement.DOWN)
                 Body[0].Direction = Movement.UP;
-        }
+        }// end MoveUp()
 
         public void MoveDown() {
-            if(Body[0].Direction != Movement.UP)
+            // Checks if the head of the snake is moving in the opposite direction
+            if(SnakeHeadDirection != Movement.UP)
                 Body[0].Direction = Movement.DOWN;
-        }
+        }// end MoveDown()
 
         public void MoveLeft() {
-            if(Body[0].Direction != Movement.RIGHT)
+            // Checks if the head of the snake is moving in the opposite direction
+            if(SnakeHeadDirection != Movement.RIGHT)
                 Body[0].Direction = Movement.LEFT;
-        }
+        }// end MoveLeft()
         
         public void MoveRight() {
-            if(Body[0].Direction != Movement.LEFT)
+            // Checks if the head of the snake is moving in the opposite direction
+            if(SnakeHeadDirection != Movement.LEFT)
                 Body[0].Direction = Movement.RIGHT;
-        }
+        }// end MoveRight()
 
         private bool IsInBoundries(SnakeParts part) {
             var temp = part.GetClone();
@@ -206,7 +212,7 @@ namespace SnakeObjects {
                 default:
                     return background.IsOnMap(temp.Row, ++temp.Col);
             }
-        }
+        }// end IsInBoundries()
 
         private bool WillNotTouchSnake(SnakeParts part) {
             var temp = part.GetClone();
@@ -220,7 +226,7 @@ namespace SnakeObjects {
                 default:
                     return IsTouchingSnake(temp.Row, ++temp.Col);
             }
-        }
+        }// end WillNotTouchSnake()
 
         private bool CheckIfLegalMove(SnakeParts part) {
             return !WillNotTouchSnake(part) && IsInBoundries(part);
@@ -228,6 +234,7 @@ namespace SnakeObjects {
 
         // Updates the Snake Body
         public bool PlaySnake(GameTime gameTime) {
+            var direction = Body[0].Direction;
             // Moves all parts by their set location
             if(SnakeCount >= SNAKE_SPEED) {
                 // Updates all snake parts to their updated directions
@@ -246,6 +253,9 @@ namespace SnakeObjects {
                 else {
                     return false;
                 }
+                // Changes the direction of the head to the new updated direction
+                SnakeHeadDirection = Head.Direction;
+                // Sets the snake count timer to 0
                 SnakeCount = 0;
             }
             else
@@ -275,15 +285,12 @@ namespace SnakeObjects {
 
         public int GetLength() {
             return Body.Count;
-        }
+        }// end GetLength()
 
         public void Draw(SpriteBatch spriteBatch) {
             foreach(var part in Body) {
                 part.Draw(spriteBatch);
             }
-        }
-
-        
+        }// end Draw()
     }// end Snake
-
 }// end SnakeObjects namespacee
