@@ -5,28 +5,20 @@ using System;
 
 
 namespace Controllers {
-    
-    public enum MenuCommands { MENU_VISIBILITY, MOVE_MENU_MODE_SWITCH, DRAW_MODE_SWITCH, 
-    BUCKET_MODE_SWITCH, MOVE_UP, MOVE_DOWN, MOVE_LEFT, 
-    MOVE_RIGHT, UPDATE_TILE_PRIMARY, UPDATE_TILE_SECONDARY,
-    RESET_SNAKE }
-
-    public enum SnakeCommands { MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, RESET_SNAKE}
-
     public class Button {
             public Keys Key{ get; set; }
             public Keys SecondaryKey{ get; set; }
             public bool IsPressed{ get; set; }
             public Enum effectName{get;}
 
-            public Button(Keys key, Keys key2, MenuCommands name) {
+            public Button(Keys key, Keys key2, Enum name) {
                 Key = key;
                 SecondaryKey = key2;
                 IsPressed = false;
                 effectName = name;
             }
 
-            public Button(Keys key, MenuCommands name) {
+            public Button(Keys key, Enum name) {
                 Key = key;
                 SecondaryKey = Keys.None;
                 IsPressed = false;
@@ -56,6 +48,11 @@ namespace Controllers {
     }
 
     public class MapControl : BaseController {
+        private enum MenuCommands { MENU_VISIBILITY, MOVE_MENU_MODE_SWITCH, DRAW_MODE_SWITCH, 
+        BUCKET_MODE_SWITCH, MOVE_UP, MOVE_DOWN, MOVE_LEFT, 
+        MOVE_RIGHT, UPDATE_TILE_PRIMARY, UPDATE_TILE_SECONDARY,
+        RESET_SNAKE }
+
         public MapControl() {
             commandKeys = new Button[] {
                 // Toggles Menu Visibility
@@ -73,7 +70,7 @@ namespace Controllers {
             };
             
 
-            mode = ControllerMode.SNAKE;
+            mode = ControllerMode.DRAW;
         }// end GameControl
 
         public void Update(MapBuilder.Game1 game, GameTime gameTime) {
@@ -180,5 +177,52 @@ namespace Controllers {
                 game.TileMenu.MenuClicked = false;
             }
         }
-    }// end GameControl
+    }// end MapControl
+
+    public class SnakeController : BaseController {
+        private enum SnakeCommands { MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, RESET_SNAKE }
+        SnakeController() {
+            commandKeys = new Button[] {
+                // Toggles Menu Visibility
+                new Button(Keys.Up, SnakeCommands.MOVE_UP),
+                new Button(Keys.Down, SnakeCommands.MOVE_DOWN),
+                new Button(Keys.Right, SnakeCommands.MOVE_RIGHT),
+                new Button(Keys.Left, SnakeCommands.MOVE_LEFT),
+                new Button(Keys.R, Keys.LeftShift, SnakeCommands.RESET_SNAKE)
+            };
+        }
+        
+        public void CommandInputs(MapBuilder.Game1 game) {
+            KeyboardState kState = Keyboard.GetState();
+            foreach(Button butt in commandKeys) {
+                // Switch case which goes through every available menu command 
+                switch (butt.effectName) {
+                    case SnakeCommands.MOVE_UP:
+                        if (kState.IsKeyDown(butt.Key))
+                            game.Snake.MoveUp();
+                        break;
+                    case SnakeCommands.MOVE_DOWN:
+                        if (kState.IsKeyDown(butt.Key))
+                            game.Snake.MoveDown();
+                        break;
+                    case SnakeCommands.MOVE_LEFT:
+                        if (kState.IsKeyDown(butt.Key))
+                            game.Snake.MoveLeft();
+                        break;
+                    case SnakeCommands.MOVE_RIGHT:
+                        if (kState.IsKeyDown(butt.Key))
+                            game.Snake.MoveRight();
+                        break;
+                    case SnakeCommands.RESET_SNAKE:
+                        if (kState.IsKeyDown(butt.Key))
+                            game.Snake.ResetSnake();
+                        break;
+                    default:
+                        break;
+                }
+            }// end foreach loop
+        }// end CommandInputs()
+
+
+    }
 }

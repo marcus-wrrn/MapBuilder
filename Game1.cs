@@ -17,7 +17,7 @@ namespace MapBuilder
         public SnakeObjects.Snake Snake;
         private SpriteFont Font;
         private string fileName = "test";
-        private Controller.GameControl controller;
+        private Controllers.MapControl controller;
         public bool IsNotGameOver = true;
         public Game1()
         {
@@ -33,7 +33,7 @@ namespace MapBuilder
         { 
             base.Initialize();
             // Initializes controller
-            controller = new Controller.GameControl();
+            controller = new Controllers.MapControl();
             // Initializing all textures to be loaded into the map
             Texture2D[] test = new Texture2D[8];
             for(int i = 0; i < test.Length; i++)
