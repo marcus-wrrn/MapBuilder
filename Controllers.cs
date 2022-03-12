@@ -26,11 +26,16 @@ namespace Controllers {
             }
     }// end Button
 
+    public interface ControllerInterface {
+        void Update(GameTime gameTime);
+        void CommandInputs(GameTime gameTime);
+        void Draw(GameTime gameTime);
+    }
+
     public class BaseController {
         // to be used later to swap between different modes for the map editor
-        protected enum ControllerMode { MOVE_MENU, DRAW, BUCKET_FILL, SNAKE }
         protected Button[] commandKeys;               // All Key commands with the shift 
-        protected ControllerMode mode;                // The mode that the controller is currently in
+ 
 
         // 
         protected void UseCommand(KeyboardState kState, Button butt, Action action) {
@@ -47,13 +52,23 @@ namespace Controllers {
         }// end UseCommand()
     }
 
-    public class MapControl : BaseController {
+    public class MapController : BaseController {
         private enum MenuCommands { MENU_VISIBILITY, MOVE_MENU_MODE_SWITCH, DRAW_MODE_SWITCH, 
         BUCKET_MODE_SWITCH, MOVE_UP, MOVE_DOWN, MOVE_LEFT, 
         MOVE_RIGHT, UPDATE_TILE_PRIMARY, UPDATE_TILE_SECONDARY,
         RESET_SNAKE }
 
-        public MapControl() {
+        protected enum ControllerMode { MOVE_MENU, DRAW, BUCKET_FILL }
+
+        private MenuSystem.TilePickerMenu TileMenu;
+        private Drawing.Brush Brush;
+        private TileMap.Background Map;
+        private ControllerMode mode;                // The mode that the controller is currently in
+
+        public MapController(MenuSystem.TilePickerMenu tMenu, Drawing.Brush brsh, TileMap.Background map) {
+            TileMenu = tMenu;
+            Brush  = brsh;
+            Map = map;
             commandKeys = new Button[] {
                 // Toggles Menu Visibility
                 new Button(Keys.V, Keys.LeftShift, MenuCommands.MENU_VISIBILITY),
@@ -68,25 +83,22 @@ namespace Controllers {
                 new Button(Keys.Left, MenuCommands.MOVE_LEFT),
                 new Button(Keys.Right, MenuCommands.MOVE_RIGHT)
             };
-            
-
             mode = ControllerMode.DRAW;
-        }// end GameControl
+        }// end Contructor
 
-        public void Update(MapBuilder.Game1 game, GameTime gameTime) {
-            BrushInputManager(game);
-            CommandInputs(game, gameTime);
-        }
+        public MapController(MapBuilder.Game1 game) : this(game.TileMenu, game.Brush, game.Map) {}
+
+
 
         // Checks keys to check if any MenuEffects should be triggered
-        public void CommandInputs(MapBuilder.Game1 game, GameTime gameTime) {
+        private void CommandInputs(GameTime gameTime) {
             KeyboardState kState = Keyboard.GetState();
             foreach(Button butt in commandKeys) {
                 // Switch case which goes through every available menu command 
                 switch (butt.effectName) {
                     case MenuCommands.MENU_VISIBILITY:
                         // Toggles menu visibility
-                        UseCommand(kState, butt, () => game.TileMenu.ToggleVisibility());
+                        UseCommand(kState, butt, () => TileMenu.ToggleVisibility());
                         break;
                     // Swap to move menu mode
                     case MenuCommands.MOVE_MENU_MODE_SWITCH:
@@ -102,34 +114,21 @@ namespace Controllers {
                         else if(mode == ControllerMode.BUCKET_FILL)
                             UseCommand(kState, butt, () => mode = ControllerMode.DRAW);
                         break;
-                    case MenuCommands.RESET_SNAKE:
-                        if (mode == ControllerMode.SNAKE) {
-                            UseCommand(kState, butt, () => game.ResetGame());
-                        }
-                        break;
                     case MenuCommands.MOVE_UP:
                         if (mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
-                            game.TileMenu.MoveUp(gameTime);
-                        else if (mode == ControllerMode.SNAKE && kState.IsKeyDown(butt.Key))
-                            game.Snake.MoveUp();
+                            TileMenu.MoveUp(gameTime);
                         break;
                     case MenuCommands.MOVE_DOWN:
                         if (mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
-                            game.TileMenu.MoveDown(gameTime);
-                        else if (mode == ControllerMode.SNAKE && kState.IsKeyDown(butt.Key))
-                            game.Snake.MoveDown();
+                            TileMenu.MoveDown(gameTime);
                         break;
                     case MenuCommands.MOVE_RIGHT:
                         if (mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
-                            game.TileMenu.MoveRight(gameTime);
-                        else if (mode == ControllerMode.SNAKE && kState.IsKeyDown(butt.Key))
-                            game.Snake.MoveRight();
+                            TileMenu.MoveRight(gameTime);
                         break;
                     case MenuCommands.MOVE_LEFT:
                         if (mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
-                            game.TileMenu.MoveLeft(gameTime);
-                        else if (mode == ControllerMode.SNAKE && kState.IsKeyDown(butt.Key))
-                            game.Snake.MoveLeft();
+                            TileMenu.MoveLeft(gameTime);
                         break;
                     default:
                         break;
@@ -138,50 +137,75 @@ namespace Controllers {
         }// end MenuEffects()
 
         // Controls how the mouse inputs effect the Brushes Drawing ability
-        private void BrushInputManager(MapBuilder.Game1 game) {
+        private void BrushInputManager() {
             var mouseState = Mouse.GetState();
             Vector2 mouseLoc = new Vector2(mouseState.X, mouseState.Y);
             if (mouseState.LeftButton == ButtonState.Pressed) {
                 // Set Show Secondary to False
-                game.Brush.ShowSecondary = false;
-                BrushInputHelper(game, mouseLoc);
+                Brush.ShowSecondary = false;
+                BrushInputHelper(mouseLoc);
             }
             else if (mouseState.RightButton == ButtonState.Pressed) {
                 // Set Brush to display secondary Texture in its view
-                game.Brush.ShowSecondary = true;
-                BrushInputHelper(game, mouseLoc);
+                Brush.ShowSecondary = true;
+                BrushInputHelper(mouseLoc);
             }
             else
-                game.Brush.ShowSecondary = false;
+                Brush.ShowSecondary = false;
         }// end MouseEffects()
 
         // Helps BrushInputManager by Making sure that the map is being updated Correctly
-        private void BrushInputHelper(MapBuilder.Game1 game, Vector2 mouseLoc) {
+        private void BrushInputHelper(Vector2 mouseLoc) {
             // Gets the current texture
-            Texture2D texture = game.Brush.GetCurrentTile().Texture;
+            Texture2D texture = Brush.GetCurrentTile().Texture;
             // Check to see if it clicked on a menu icon
-            Texture2D tempTile = game.TileMenu.GetTileTexture(mouseLoc);
+            Texture2D tempTile = TileMenu.GetTileTexture(mouseLoc);
             if (tempTile != null) {
-                game.Brush.ChangeTexture(tempTile);
+                Brush.ChangeTexture(tempTile);
             }
-            else if (game.TileMenu.IfMenuClicked(mouseLoc)) {
-                if(!game.TileMenu.MenuClicked)
-                    game.TileMenu.MenuClicked = true;
-            }    
+            else if (TileMenu.IfMenuClicked(mouseLoc)) {
+                if(!TileMenu.MenuClicked)
+                    TileMenu.MenuClicked = true;
+            }
+
             // If the menu icon wasn't clicked update the tile below it
             else {
                 if (mode == ControllerMode.DRAW)
-                    game.Map.UpdateTile(texture, mouseLoc);
+                    Map.UpdateTile(texture, mouseLoc);
                 else if(mode == ControllerMode.BUCKET_FILL)
-                    game.Brush.BucketFill(game.Map, mouseLoc, texture);
-                game.TileMenu.MenuClicked = false;
+                    Brush.BucketFill(Map, mouseLoc, texture);
+                TileMenu.MenuClicked = false;
             }
         }
+        public void Update(GameTime gameTime) {
+            CommandInputs(gameTime);
+            BrushInputManager();
+        }
+
+        public void Draw(SpriteBatch spriteBatch) {
+            Map.Draw(spriteBatch);
+            TileMenu.Draw(spriteBatch);
+            Brush.DrawBrush(spriteBatch);
+        }
+            
     }// end MapControl
 
     public class SnakeController : BaseController {
+        protected enum ControllerMode { PLAY_GAME, GAME_OVER }
         private enum SnakeCommands { MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, RESET_SNAKE }
-        SnakeController() {
+        private SnakeObjects.Snake Snake;
+        private SnakeObjects.Fruit SnakeFruit;
+        private SpriteFont ScoreFont;
+        private ControllerMode Mode;
+        private TileMap.Background Map;
+
+        public SnakeController(SnakeObjects.Snake snek, SnakeObjects.Fruit snekFruit, SpriteFont scoreFont, TileMap.Background map) {
+            Snake = snek;
+            SnakeFruit = snekFruit;
+            Mode = ControllerMode.PLAY_GAME;
+            ScoreFont = scoreFont;
+            Map = map;
+            // Initiallize the key Commands
             commandKeys = new Button[] {
                 // Toggles Menu Visibility
                 new Button(Keys.Up, SnakeCommands.MOVE_UP),
@@ -191,31 +215,34 @@ namespace Controllers {
                 new Button(Keys.R, Keys.LeftShift, SnakeCommands.RESET_SNAKE)
             };
         }
-        
-        public void CommandInputs(MapBuilder.Game1 game) {
+
+        public SnakeController(MapBuilder.Game1 game) : this(game.Snake, game.SnakeFruit, game.Font, game.Map) {}
+        private void CommandInputs() {
             KeyboardState kState = Keyboard.GetState();
             foreach(Button butt in commandKeys) {
                 // Switch case which goes through every available menu command 
                 switch (butt.effectName) {
                     case SnakeCommands.MOVE_UP:
                         if (kState.IsKeyDown(butt.Key))
-                            game.Snake.MoveUp();
+                            Snake.MoveUp();
                         break;
                     case SnakeCommands.MOVE_DOWN:
                         if (kState.IsKeyDown(butt.Key))
-                            game.Snake.MoveDown();
+                            Snake.MoveDown();
                         break;
                     case SnakeCommands.MOVE_LEFT:
                         if (kState.IsKeyDown(butt.Key))
-                            game.Snake.MoveLeft();
+                            Snake.MoveLeft();
                         break;
                     case SnakeCommands.MOVE_RIGHT:
                         if (kState.IsKeyDown(butt.Key))
-                            game.Snake.MoveRight();
+                            Snake.MoveRight();
                         break;
                     case SnakeCommands.RESET_SNAKE:
-                        if (kState.IsKeyDown(butt.Key))
-                            game.Snake.ResetSnake();
+                        if (kState.IsKeyDown(butt.Key)) {
+                            Snake.ResetSnake();
+                            Mode = ControllerMode.PLAY_GAME;
+                        }
                         break;
                     default:
                         break;
@@ -223,6 +250,118 @@ namespace Controllers {
             }// end foreach loop
         }// end CommandInputs()
 
+        public void Update(GameTime gameTime) {
+            // Call the input commands
+            CommandInputs();
+            // Update game
+            if(Mode == ControllerMode.PLAY_GAME) {
+                if(Snake.PlaySnake(gameTime))
+                    SnakeFruit.Update();
+                else
+                    Mode = ControllerMode.GAME_OVER; 
+            }
+        }// end Update
 
-    }
+        public void Draw(GameTime gameTime, SpriteBatch spriteBatch) {
+            Map.Draw(spriteBatch);
+            Snake.Draw(spriteBatch);
+            SnakeFruit.Draw(spriteBatch);
+            spriteBatch.DrawString(ScoreFont, "Score " + (Snake.GetLength() - 1), new Vector2(3000, 500), Color.Black);
+        }
+    }// end SnakeController
+
+    // Master Controller class which will be used to control the flow of the game
+    public class MasterController : BaseController {
+        private enum MainControllerMode{ START_SCREEN, MAP_EDITOR, SNAKE_GAME }
+        private enum SecondaryControllerMode{ OPTIONS_MENU, OFF }
+        private enum MasterCommands{ EXIT_GAME, OPTIONS_MENU, SWITCH_TO_SNAKE, SWITCH_TO_MAPBUILDER}
+        private MapBuilder.Game1 gamePointer;
+        private SnakeController snakeController;
+        private MapController mapController;
+        private MainControllerMode primaryMode;
+        //private SecondaryControllerMode secondaryMode;
+        public MasterController(MapBuilder.Game1 game) {
+            // Set all necessary controller 
+            gamePointer = game;
+            // Sets all modes to their starting states
+            primaryMode = MainControllerMode.START_SCREEN;
+            //secondaryMode = SecondaryControllerMode.OFF;
+            // Sets all key commands
+            commandKeys = new Button[] {
+                new Button(Keys.Escape, MasterCommands.OPTIONS_MENU),
+                new Button(Keys.Escape, Keys.LeftShift, MasterCommands.EXIT_GAME),
+                new Button(Keys.S, Keys.LeftShift, MasterCommands.SWITCH_TO_SNAKE),
+                new Button(Keys.M, Keys.LeftShift, MasterCommands.SWITCH_TO_MAPBUILDER)
+            }; 
+        }// end MasterController constructor
+
+        public void Update(GameTime gameTime) {
+            switch (primaryMode) {
+                case MainControllerMode.START_SCREEN:
+                    UpdateStartScreen();
+                    break;
+                case MainControllerMode.SNAKE_GAME:
+                    snakeController.Update(gameTime);
+                    break;
+                case MainControllerMode.MAP_EDITOR:
+                    mapController.Update(gameTime);
+                    break;
+            }
+        }
+
+        private void UpdateStartScreen() {
+            KeyboardState kState = Keyboard.GetState();
+            foreach(Button butt in commandKeys) {
+                // Switch case which goes through every available menu command 
+                switch (butt.effectName) {
+                    case MasterCommands.EXIT_GAME:
+                        if(kState.IsKeyDown(butt.Key))
+                            gamePointer.Exit();
+                        break;
+                    case MasterCommands.SWITCH_TO_MAPBUILDER:
+                        if(primaryMode == MainControllerMode.START_SCREEN)
+                            UseCommand(kState, butt, () => LoadMap());
+                        break;
+                    case MasterCommands.SWITCH_TO_SNAKE:
+                        if(primaryMode == MainControllerMode.START_SCREEN)
+                            UseCommand(kState, butt, () => LoadSnake());
+                        break;
+                    default:
+                        break;
+                }
+            }// end foreach loop
+        }//end UpdateStartScreen()
+
+        private void LoadSnake() {
+            // Load all of the game logic for the snake game
+            gamePointer.LoadSnake();
+            // Initialize the controller
+            snakeController = new SnakeController(gamePointer);
+            // Change mode to Snake
+            primaryMode = MainControllerMode.SNAKE_GAME;
+        }// end LoadSnake()
+
+        private void LoadMap() {
+            // Load all game logic for the map
+            gamePointer.LoadMap();
+            // Create the map controller
+            mapController = new MapController(gamePointer);
+            // Set the mode to null
+            primaryMode = MainControllerMode.MAP_EDITOR;
+        }// end LoadMap()
+
+        public void Draw(GameTime gameTime, SpriteBatch spriteBatch) {
+            switch(primaryMode) {
+                case MainControllerMode.START_SCREEN:
+                    break;
+                case MainControllerMode.SNAKE_GAME:
+                    snakeController.Draw(gameTime, spriteBatch);
+                    break;
+                case MainControllerMode.MAP_EDITOR:
+                    mapController.Draw(spriteBatch);
+                    break;
+            }
+        }
+
+    }// end MasterController
 }

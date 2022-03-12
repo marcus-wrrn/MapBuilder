@@ -73,8 +73,6 @@ namespace TileMap {
         public int GetRowNumber(Vector2 location) {
             return (int)((location.Y - OffSet.Y)/BaseTile.Width);
         }
-
-
         public void Draw(SpriteBatch spriteBatch) {
             for(int i = 0; i < Rows; i++) {
                 for(int j = 0; j < Columns; j++) {
@@ -104,9 +102,6 @@ namespace TileMap {
                 Console.WriteLine("Divide by zero error");
             }
         }// end updateTile()
-
-        
-
         public bool IsOnMap(int row, int col) {
             return row < map.GetLength(0) && row >= 0 && col < map.GetLength(1) && col >= 0;
         }// end IsOnMap()
@@ -144,6 +139,7 @@ namespace TileMap {
                     Console.WriteLine("Error: {0}", ioexp.Message);
                 }
             }
-        }
+        }//  end ExportToBinary()
+        
     }// end Background
 }// end namespace TileMap

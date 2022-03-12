@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 
-
-
 namespace SnakeObjects {
     public enum Movement { LEFT, RIGHT, UP, DOWN, }
 
