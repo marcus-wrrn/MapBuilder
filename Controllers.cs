@@ -52,7 +52,7 @@ namespace Controllers {
         }// end UseCommand()
     }
 
-    public class MapControl : BaseController {
+    public class MapController : BaseController {
         private enum MenuCommands { MENU_VISIBILITY, MOVE_MENU_MODE_SWITCH, DRAW_MODE_SWITCH, 
         BUCKET_MODE_SWITCH, MOVE_UP, MOVE_DOWN, MOVE_LEFT, 
         MOVE_RIGHT, UPDATE_TILE_PRIMARY, UPDATE_TILE_SECONDARY,
@@ -65,9 +65,10 @@ namespace Controllers {
         private TileMap.Background Map;
         private ControllerMode mode;                // The mode that the controller is currently in
 
-        public MapControl(MenuSystem.TilePickerMenu tMenu, Drawing.Brush brsh) {
+        public MapController(MenuSystem.TilePickerMenu tMenu, Drawing.Brush brsh, TileMap.Background map) {
             TileMenu = tMenu;
             Brush  = brsh;
+            Map = map;
             commandKeys = new Button[] {
                 // Toggles Menu Visibility
                 new Button(Keys.V, Keys.LeftShift, MenuCommands.MENU_VISIBILITY),
@@ -82,10 +83,12 @@ namespace Controllers {
                 new Button(Keys.Left, MenuCommands.MOVE_LEFT),
                 new Button(Keys.Right, MenuCommands.MOVE_RIGHT)
             };
-            
-
             mode = ControllerMode.DRAW;
-        }// end GameControl
+        }// end Contructor
+
+        public MapController(MapBuilder.Game1 game) : this(game.TileMenu, game.Brush, game.Map) {}
+
+
 
         // Checks keys to check if any MenuEffects should be triggered
         private void CommandInputs(GameTime gameTime) {
@@ -194,11 +197,14 @@ namespace Controllers {
         private SnakeObjects.Fruit SnakeFruit;
         private SpriteFont ScoreFont;
         private ControllerMode Mode;
+        private TileMap.Background Map;
 
-        SnakeController(SnakeObjects.Snake snek, SnakeObjects.Fruit snekFruit, SpriteFont scoreFont) {
+        public SnakeController(SnakeObjects.Snake snek, SnakeObjects.Fruit snekFruit, SpriteFont scoreFont, TileMap.Background map) {
             Snake = snek;
+            SnakeFruit = snekFruit;
             Mode = ControllerMode.PLAY_GAME;
             ScoreFont = scoreFont;
+            Map = map;
             // Initiallize the key Commands
             commandKeys = new Button[] {
                 // Toggles Menu Visibility
@@ -209,6 +215,8 @@ namespace Controllers {
                 new Button(Keys.R, Keys.LeftShift, SnakeCommands.RESET_SNAKE)
             };
         }
+
+        public SnakeController(MapBuilder.Game1 game) : this(game.Snake, game.SnakeFruit, game.Font, game.Map) {}
         private void CommandInputs() {
             KeyboardState kState = Keyboard.GetState();
             foreach(Button butt in commandKeys) {
@@ -255,13 +263,105 @@ namespace Controllers {
         }// end Update
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch) {
+            Map.Draw(spriteBatch);
             Snake.Draw(spriteBatch);
             SnakeFruit.Draw(spriteBatch);
             spriteBatch.DrawString(ScoreFont, "Score " + (Snake.GetLength() - 1), new Vector2(3000, 500), Color.Black);
         }
     }// end SnakeController
 
+    // Master Controller class which will be used to control the flow of the game
     public class MasterController : BaseController {
-        
-    }
+        private enum MainControllerMode{ START_SCREEN, MAP_EDITOR, SNAKE_GAME }
+        private enum SecondaryControllerMode{ OPTIONS_MENU, OFF }
+        private enum MasterCommands{ EXIT_GAME, OPTIONS_MENU, SWITCH_TO_SNAKE, SWITCH_TO_MAPBUILDER}
+        private MapBuilder.Game1 gamePointer;
+        private SnakeController snakeController;
+        private MapController mapController;
+        private MainControllerMode primaryMode;
+        //private SecondaryControllerMode secondaryMode;
+        public MasterController(MapBuilder.Game1 game) {
+            // Set all necessary controller 
+            gamePointer = game;
+            // Sets all modes to their starting states
+            primaryMode = MainControllerMode.START_SCREEN;
+            //secondaryMode = SecondaryControllerMode.OFF;
+            // Sets all key commands
+            commandKeys = new Button[] {
+                new Button(Keys.Escape, MasterCommands.OPTIONS_MENU),
+                new Button(Keys.Escape, Keys.LeftShift, MasterCommands.EXIT_GAME),
+                new Button(Keys.S, Keys.LeftShift, MasterCommands.SWITCH_TO_SNAKE),
+                new Button(Keys.M, Keys.LeftShift, MasterCommands.SWITCH_TO_MAPBUILDER)
+            }; 
+        }// end MasterController constructor
+
+        public void Update(GameTime gameTime) {
+            switch (primaryMode) {
+                case MainControllerMode.START_SCREEN:
+                    UpdateStartScreen();
+                    break;
+                case MainControllerMode.SNAKE_GAME:
+                    snakeController.Update(gameTime);
+                    break;
+                case MainControllerMode.MAP_EDITOR:
+                    mapController.Update(gameTime);
+                    break;
+            }
+        }
+
+        private void UpdateStartScreen() {
+            KeyboardState kState = Keyboard.GetState();
+            foreach(Button butt in commandKeys) {
+                // Switch case which goes through every available menu command 
+                switch (butt.effectName) {
+                    case MasterCommands.EXIT_GAME:
+                        if(kState.IsKeyDown(butt.Key))
+                            gamePointer.Exit();
+                        break;
+                    case MasterCommands.SWITCH_TO_MAPBUILDER:
+                        if(primaryMode == MainControllerMode.START_SCREEN)
+                            UseCommand(kState, butt, () => LoadMap());
+                        break;
+                    case MasterCommands.SWITCH_TO_SNAKE:
+                        if(primaryMode == MainControllerMode.START_SCREEN)
+                            UseCommand(kState, butt, () => LoadSnake());
+                        break;
+                    default:
+                        break;
+                }
+            }// end foreach loop
+        }//end UpdateStartScreen()
+
+        private void LoadSnake() {
+            // Load all of the game logic for the snake game
+            gamePointer.LoadSnake();
+            // Initialize the controller
+            snakeController = new SnakeController(gamePointer);
+            // Change mode to Snake
+            primaryMode = MainControllerMode.SNAKE_GAME;
+        }// end LoadSnake()
+
+        private void LoadMap() {
+            // Load all game logic for the map
+            gamePointer.LoadMap();
+            // Create the map controller
+            mapController = new MapController(gamePointer);
+            // Set the mode to null
+            primaryMode = MainControllerMode.MAP_EDITOR;
+        }// end LoadMap()
+
+        public void Draw(GameTime gameTime, SpriteBatch spriteBatch) {
+            switch(primaryMode) {
+                case MainControllerMode.START_SCREEN:
+                    break;
+                case MainControllerMode.SNAKE_GAME:
+                    snakeController.Draw(gameTime, spriteBatch);
+                    break;
+                case MainControllerMode.MAP_EDITOR:
+                    mapController.Draw(spriteBatch);
+                    break;
+            }
+        }
+
+    }// end MasterController
 }
