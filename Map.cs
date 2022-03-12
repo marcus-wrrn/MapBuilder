@@ -94,8 +94,8 @@ namespace TileMap {
         public void UpdateTile(Texture2D tile, Vector2 location) {
             try {
                 // Find the tile location 
-                int col = (int)((location.X)/BaseTile.Height);
-                int row = (int)((location.Y)/BaseTile.Width + OffSet.X);
+                int col = GetColumnNumber(location);
+                int row = GetRowNumber(location);
                 // Replace tile
                 map[row,col].Texture = tile;
             }  catch {

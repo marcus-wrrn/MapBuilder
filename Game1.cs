@@ -20,7 +20,7 @@ namespace MapBuilder
         public SnakeObjects.Fruit SnakeFruit;
         public SnakeObjects.Snake Snake;
         public SpriteFont Font;
-        private string fileName = "test";
+        //private string fileName = "test";
         private Controllers.MasterController controller;
         public bool IsNotGameOver = true;
         public Game1()

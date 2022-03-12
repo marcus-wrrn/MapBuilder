@@ -41,8 +41,8 @@ namespace Drawing {
         }// end DecreaseBrushSize()
 
         public void UpdateBrush(Background background, Vector2 mouseLocation) {
-            int col = (int)(mouseLocation.X/background.BaseTile.Height);
-            int row = (int)(mouseLocation.Y/background.BaseTile.Width);
+            int col = background.GetColumnNumber(mouseLocation);
+            int row = background.GetRowNumber(mouseLocation);
             // If brush is out of bounds of the map don't update
             if(row >= background.Rows || row < 0 || col >= background.Columns || col < 0)
                 return;

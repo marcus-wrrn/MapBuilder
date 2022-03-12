@@ -65,10 +65,12 @@ namespace Controllers {
         private TileMap.Background Map;
         private ControllerMode mode;                // The mode that the controller is currently in
 
+        // TODO: Decrease the variable bloat, this is going to be solved using better containerization of the mapbuilder and snake game classes
         public MapController(MenuSystem.TilePickerMenu tMenu, Drawing.Brush brsh, TileMap.Background map) {
             TileMenu = tMenu;
             Brush  = brsh;
             Map = map;
+
             commandKeys = new Button[] {
                 // Toggles Menu Visibility
                 new Button(Keys.V, Keys.LeftShift, MenuCommands.MENU_VISIBILITY),
@@ -140,6 +142,7 @@ namespace Controllers {
         private void BrushInputManager() {
             var mouseState = Mouse.GetState();
             Vector2 mouseLoc = new Vector2(mouseState.X, mouseState.Y);
+            Brush.UpdateBrush(Map, mouseLoc);
             if (mouseState.LeftButton == ButtonState.Pressed) {
                 // Set Show Secondary to False
                 Brush.ShowSecondary = false;
@@ -152,6 +155,7 @@ namespace Controllers {
             }
             else
                 Brush.ShowSecondary = false;
+            
         }// end MouseEffects()
 
         // Helps BrushInputManager by Making sure that the map is being updated Correctly
@@ -167,11 +171,12 @@ namespace Controllers {
                 if(!TileMenu.MenuClicked)
                     TileMenu.MenuClicked = true;
             }
-
             // If the menu icon wasn't clicked update the tile below it
             else {
-                if (mode == ControllerMode.DRAW)
+                if (mode == ControllerMode.DRAW) {
+                    Console.WriteLine("Hello!");
                     Map.UpdateTile(texture, mouseLoc);
+                }
                 else if(mode == ControllerMode.BUCKET_FILL)
                     Brush.BucketFill(Map, mouseLoc, texture);
                 TileMenu.MenuClicked = false;
