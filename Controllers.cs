@@ -56,7 +56,7 @@ namespace Controllers {
         private enum MenuCommands { MENU_VISIBILITY, MOVE_MENU_MODE_SWITCH, DRAW_MODE_SWITCH, 
         BUCKET_MODE_SWITCH, MOVE_UP, MOVE_DOWN, MOVE_LEFT, 
         MOVE_RIGHT, UPDATE_TILE_PRIMARY, UPDATE_TILE_SECONDARY,
-        RESET_SNAKE }
+        SAVE_MAP }
 
         protected enum ControllerMode { MOVE_MENU, DRAW, BUCKET_FILL }
 
@@ -78,7 +78,7 @@ namespace Controllers {
                 new Button(Keys.M, Keys.LeftShift, MenuCommands.MOVE_MENU_MODE_SWITCH),
                 // Toggles to Bucket Fill Mode
                 new Button(Keys.G, MenuCommands.BUCKET_MODE_SWITCH),
-                new Button(Keys.R, Keys.LeftShift, MenuCommands.RESET_SNAKE),
+                new Button(Keys.S, Keys.LeftShift, MenuCommands.SAVE_MAP),
                 // Movement commands
                 new Button(Keys.Up, MenuCommands.MOVE_UP),
                 new Button(Keys.Down, MenuCommands.MOVE_DOWN),
@@ -115,6 +115,9 @@ namespace Controllers {
                             UseCommand(kState, butt, () => mode = ControllerMode.BUCKET_FILL);
                         else if(mode == ControllerMode.BUCKET_FILL)
                             UseCommand(kState, butt, () => mode = ControllerMode.DRAW);
+                        break;
+                    case MenuCommands.SAVE_MAP:
+                        UseCommand(kState, butt, () => Map.ExportToBinary("test2"));
                         break;
                     case MenuCommands.MOVE_UP:
                         if (mode == ControllerMode.MOVE_MENU && kState.IsKeyDown(butt.Key))
@@ -173,10 +176,8 @@ namespace Controllers {
             }
             // If the menu icon wasn't clicked update the tile below it
             else {
-                if (mode == ControllerMode.DRAW) {
-                    Console.WriteLine("Hello!");
+                if (mode == ControllerMode.DRAW)
                     Map.UpdateTile(texture, mouseLoc);
-                }
                 else if(mode == ControllerMode.BUCKET_FILL)
                     Brush.BucketFill(Map, mouseLoc, texture);
                 TileMenu.MenuClicked = false;

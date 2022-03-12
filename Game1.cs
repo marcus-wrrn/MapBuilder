@@ -11,7 +11,7 @@ namespace MapBuilder
         // Constants for the file names
         // TODO: Implement a file save + load system
         private string SNAKE_FILE_NAME = "test";
-        private string MAPBUILDER_FILE_NAME = "test";
+        private string MAPBUILDER_FILE_NAME = "test2";
         private GraphicsDeviceManager _graphics;
         public SpriteBatch _spriteBatch;
         public Background Map;
@@ -116,8 +116,13 @@ namespace MapBuilder
             Texture2D menuTexture = Content.Load<Texture2D>("Menu");
             // Create Map
             Map = new Background(MAPBUILDER_FILE_NAME, this);
+            //Map = new Background(Content.Load<Texture2D>("tile"), new Vector2(50, 50), 30, 40);
             TileMenu = new TilePickerMenu(test, 0, new Vector2(_graphics.PreferredBackBufferWidth - menuTexture.Width, 0), menuTexture);
             Brush = new Drawing.Brush(Content.Load<Texture2D>("tile"), Content.Load<Texture2D>("tile2Test"));
+        }
+
+        public void SaveMap() {
+            Map.ExportToBinary(MAPBUILDER_FILE_NAME);
         }
 
         public void ResetGame() {

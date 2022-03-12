@@ -33,9 +33,22 @@ namespace TileMap {
 
         public Background(Texture2D baseTile, int rows, int columns) : this(baseTile, new Vector2(0f, 0f), rows, columns){}
 
+        private void GenerateMap() {
+            Vector2 location = new Vector2(OffSet.X,OffSet.Y);
+            for (int i = 0; i < Rows; i++) {
+                for(int j = 0; j < Columns; j++) {
+                    map[i,j] = new GameAsset(BaseTile, location);
+                    location.X += BaseTile.Width;
+                }
+                location.Y += BaseTile.Height;
+                location.X = OffSet.X;
+            }
+        }// end GenerateMap()
+
         // Constructor to build a map from a file
-        public Background(string fileName, Game game) {
+        public Background(string fileName, MapBuilder.Game1 game) {
             try {
+                // Read the binary file
                 BinaryReader binReader = new BinaryReader(new FileStream(fileName, FileMode.Open));
                 Rows = binReader.ReadInt32();
                 Columns = binReader.ReadInt32();
@@ -47,17 +60,17 @@ namespace TileMap {
                 BaseTile = game.Content.Load<Texture2D>(binReader.ReadString());
                 // Load in Map
                 map = new GameAsset[Rows, Columns];
-                GenerateMap();
+                GenerateMapFromFile(binReader, game);
             } catch {
                     Console.WriteLine("Failed to load map");
             }
         }// end constructor from file
 
-        private void GenerateMap() {
+        private void GenerateMapFromFile(BinaryReader binaryReader, MapBuilder.Game1 game) {
             Vector2 location = new Vector2(OffSet.X,OffSet.Y);
             for (int i = 0; i < Rows; i++) {
                 for(int j = 0; j < Columns; j++) {
-                    map[i,j] = new GameAsset(BaseTile, location);
+                    map[i,j] = new GameAsset(game.Content.Load<Texture2D>(binaryReader.ReadString()), location);
                     location.X += BaseTile.Width;
                 }
                 location.Y += BaseTile.Height;
@@ -102,6 +115,7 @@ namespace TileMap {
                 Console.WriteLine("Divide by zero error");
             }
         }// end updateTile()
+
         public bool IsOnMap(int row, int col) {
             return row < map.GetLength(0) && row >= 0 && col < map.GetLength(1) && col >= 0;
         }// end IsOnMap()
