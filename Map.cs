@@ -46,7 +46,7 @@ namespace TileMap {
         }// end GenerateMap()
 
         // Constructor to build a map from a file
-        public Background(string fileName, MapBuilder.Game1 game) {
+        public Background(string fileName, Game game) {
             try {
                 // Read the binary file
                 BinaryReader binReader = new BinaryReader(new FileStream(fileName, FileMode.Open));
@@ -66,7 +66,7 @@ namespace TileMap {
             }
         }// end constructor from file
 
-        private void GenerateMapFromFile(BinaryReader binaryReader, MapBuilder.Game1 game) {
+        private void GenerateMapFromFile(BinaryReader binaryReader, Game game) {
             Vector2 location = new Vector2(OffSet.X,OffSet.Y);
             for (int i = 0; i < Rows; i++) {
                 for(int j = 0; j < Columns; j++) {

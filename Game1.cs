@@ -10,16 +10,12 @@ namespace MapBuilder
     {   
         // Constants for the file names
         // TODO: Implement a file save + load system
-        private string SNAKE_FILE_NAME = "test";
+        private string SNAKE_FILE_NAME = "test2";
         private string MAPBUILDER_FILE_NAME = "test2";
         private GraphicsDeviceManager _graphics;
         public SpriteBatch _spriteBatch;
-        public Background Map;
-        public TilePickerMenu TileMenu;
-        public Drawing.Brush Brush;
-        public SnakeObjects.Fruit SnakeFruit;
-        public SnakeObjects.Snake Snake;
-        public SpriteFont Font;
+        public Containers.GameEditorContainer MapEditorContainer;
+        public Containers.SnakeContainer SnakeContainer;
         //private string fileName = "test";
         private Controllers.MasterController controller;
         public bool IsNotGameOver = true;
@@ -107,35 +103,23 @@ namespace MapBuilder
         }
 
         public void LoadMap() {
-            // Initializing all textures to be loaded into the map
-            Texture2D[] test = new Texture2D[8];
-            for(int i = 0; i < test.Length; i++)
-                test[i] = Content.Load<Texture2D>("tile2Test");
-            test[0] = Content.Load<Texture2D>("tile");
+            // // Initializing all textures to be loaded into the map
+            // Texture2D[] test = new Texture2D[8];
+            // for(int i = 0; i < test.Length; i++)
+            //     test[i] = Content.Load<Texture2D>("tile2Test");
+            // test[0] = Content.Load<Texture2D>("tile");
 
-            Texture2D menuTexture = Content.Load<Texture2D>("Menu");
-            // Create Map
-            Map = new Background(MAPBUILDER_FILE_NAME, this);
-            //Map = new Background(Content.Load<Texture2D>("tile"), new Vector2(50, 50), 30, 40);
-            TileMenu = new TilePickerMenu(test, 0, new Vector2(_graphics.PreferredBackBufferWidth - menuTexture.Width, 0), menuTexture);
-            Brush = new Drawing.Brush(Content.Load<Texture2D>("tile"), Content.Load<Texture2D>("tile2Test"));
-        }
-
-        public void SaveMap() {
-            Map.ExportToBinary(MAPBUILDER_FILE_NAME);
-        }
-
-        public void ResetGame() {
-            Snake.ResetSnake();
-            SnakeFruit.GenerateLocation();
-            IsNotGameOver = true;
+            // Texture2D menuTexture = Content.Load<Texture2D>("Menu");
+            // // Create Map
+            // Map = new Background(MAPBUILDER_FILE_NAME, this);
+            // //Map = new Background(Content.Load<Texture2D>("tile"), new Vector2(50, 50), 30, 40);
+            // TileMenu = new TilePickerMenu(test, 0, new Vector2(_graphics.PreferredBackBufferWidth - menuTexture.Width, 0), menuTexture);
+            // Brush = new Drawing.Brush(Content.Load<Texture2D>("tile"), Content.Load<Texture2D>("tile2Test"));
+            MapEditorContainer = new Containers.GameEditorContainer(this, MAPBUILDER_FILE_NAME);
         }
 
         public void LoadSnake() {
-            Map = new Background(SNAKE_FILE_NAME, this);
-            Snake = new SnakeObjects.Snake(Content.Load<Texture2D>("tile2Test"), Map);
-            SnakeFruit = new SnakeObjects.Fruit(Content.Load<Texture2D>("tile2Test"), Map, Snake);
-            Font = Content.Load<SpriteFont>("CustomFont");
+            SnakeContainer = new Containers.SnakeContainer(this, SNAKE_FILE_NAME);
         }
 
         public int GetPrefferedBufferWidth() {
