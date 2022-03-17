@@ -78,7 +78,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Snake_Head_Down.png
+/build:Snake_Head_Down.png;Snake_Head_Downt.png
 
 #begin Snake_Head_Left.png
 /importer:TextureImporter
@@ -116,7 +116,7 @@
 /processorParam:TextureFormat=Color
 /build:Snake_Head_Up.png
 
-#begin Snake_Tail_Downt.png
+#begin Snake_Tail_Down.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -126,7 +126,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Snake_Tail_Downt.png
+/build:Snake_Tail_Down.png
 
 #begin Snake_Tail_Left.png
 /importer:TextureImporter

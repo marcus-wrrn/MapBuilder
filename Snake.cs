@@ -7,6 +7,7 @@ using System.Linq;
 
 namespace SnakeObjects {
     public enum Movement { LEFT, RIGHT, UP, DOWN, }
+    public enum PartType { HEAD, BODY, TAIL }
 
     // Fruit object
     public class Fruit {
@@ -47,7 +48,6 @@ namespace SnakeObjects {
         }// end Draw()
 
     }// end Fruit
-
     
     public class SnakeTextures {
         public Texture2D HorizontalBody{ get; private set; }
@@ -65,43 +65,40 @@ namespace SnakeObjects {
         public Texture2D TurnRightDown{ get; private set; }
         public Texture2D TurnRightUp{ get; private set; }
 
-        public SnakeTextures(Game game) {
-            try {
-                HorizontalBody = game.Content.Load<Texture2D>("Snake_Body_Horizon");
-                VerticalBody = game.Content.Load<Texture2D>("Snake_Body_Vert");
-                HeadDown = game.Content.Load<Texture2D>("Snake_Head_Down");
-                HeadUp = game.Content.Load<Texture2D>("Snake_Head_Up");
-                HeadLeft = game.Content.Load<Texture2D>("Snake_Head_Left");
-                HeadRight = game.Content.Load<Texture2D>("Snake_Head_Right");
-                TailDown = game.Content.Load<Texture2D>("Snake_Tail_Down");
-                TailUp = game.Content.Load<Texture2D>("Snake_Tail_Up");
-                TailLeft = game.Content.Load<Texture2D>("Snake_Tail_Left");
-                TailRight = game.Content.Load<Texture2D>("Snake_Tail_Right");
-                TurnLeftDown = game.Content.Load<Texture2D>("Snake_Turn_Left_Down");
-                TurnLeftUp = game.Content.Load<Texture2D>("Snake_Turn_Left_up");
-                TurnRightDown = game.Content.Load<Texture2D>("Snake_Turn_Right_Down");
-                TurnRightUp = game.Content.Load<Texture2D>("Snake_Turn_Right_Up");
-            } catch {
-                Console.WriteLine("File not found");
-            }
-            
+        public SnakeTextures(MapBuilder.Game1 game) {
+            HorizontalBody = game.Content.Load<Texture2D>("Snake_Body_Horizon");
+            VerticalBody = game.Content.Load<Texture2D>("Snake_Body_Vert");
+            HeadDown = game.Content.Load<Texture2D>("Snake_Head_Down");
+            HeadUp = game.Content.Load<Texture2D>("Snake_Head_Up");
+            HeadLeft = game.Content.Load<Texture2D>("Snake_Head_Left");
+            HeadRight = game.Content.Load<Texture2D>("Snake_Head_Right");
+            TailDown = game.Content.Load<Texture2D>("Snake_Tail_Down");
+            TailUp = game.Content.Load<Texture2D>("Snake_Tail_Up");
+            TailLeft = game.Content.Load<Texture2D>("Snake_Tail_Left");
+            TailRight = game.Content.Load<Texture2D>("Snake_Tail_Right");
+            TurnLeftDown = game.Content.Load<Texture2D>("Snake_Turn_Left_Down");
+            TurnLeftUp = game.Content.Load<Texture2D>("Snake_Turn_Left_Up");
+            TurnRightDown = game.Content.Load<Texture2D>("Snake_Turn_Right_Down");
+            TurnRightUp = game.Content.Load<Texture2D>("Snake_Turn_Right_Up");
         }
-    }
-
+    }// end SnakeTextures
 
     public class SnakeParts : Assets.GameAsset {
         public Movement Direction{ get; set; }
+        public PartType PartType{ get; set; }
         public int Row{ get; set; }
         public int Col{ get; set; }
         private TileMap.Background Background;
-        public SnakeParts(Movement direction, Assets.GameAsset asset, TileMap.Background bckground) : base(asset.Texture, asset.Location, asset.Speed) {
+        public SnakeParts(Movement direction, PartType partType, Assets.GameAsset asset, TileMap.Background bckground) : base(asset.Texture, asset.Location, asset.Speed) {
+            PartType = partType;
             Direction = direction;
             Background = bckground;
             Row = bckground.GetRowNumber(asset.Location);
             Col = bckground.GetColumnNumber(asset.Location);
         }
+        public SnakeParts(Movement direction, Assets.GameAsset asset, TileMap.Background background) : this(direction, PartType.BODY, asset, background) {}
         public SnakeParts GetClone() {
-            return new SnakeParts(Direction, this, Background);
+            return new SnakeParts(Direction, PartType, this, Background);
         }
         public void MoveUp() {
             Row--;
@@ -125,16 +122,18 @@ namespace SnakeObjects {
         private const int SNAKE_SPEED = 5;
         // Direction to determine the location of the snake head for each frame, used so the player turn the snake a full 180 and end the game on a single frame
         private Movement SnakeHeadDirection;
+        private SnakeTextures BodyTextures;
         private int SnakeCount = 0;
         private Assets.GameAsset BaseAsset{ get; set; }
         private List<SnakeParts> Body{ get; set; }
         private TileMap.Background background;
 
-        public Snake(Texture2D texture, TileMap.Background bckground) {
+        public Snake(SnakeTextures textures, TileMap.Background bckground) {
             SnakeHeadDirection = Movement.DOWN;
             background = bckground;
+            BodyTextures = textures;
             // Set BaseAsset 
-            SetBaseAsset(texture);
+            SetBaseAsset(textures.HeadDown);
             // Set the Bodies state to its starting position
             SetDefaultSnake();
         }// end constructor()
@@ -290,6 +289,7 @@ namespace SnakeObjects {
                 else {
                     return false;
                 }
+                UpdateTextures();
                 // Changes the direction of the head to the new updated direction
                 SnakeHeadDirection = Head.Direction;
                 // Sets the snake count timer to 0
@@ -299,6 +299,104 @@ namespace SnakeObjects {
                 SnakeCount++;
             return true;
         }// end Update()
+
+        private void UpdateHead(SnakeParts head) {
+            switch(head.Direction) {
+                case Movement.UP:
+                    head.Texture = BodyTextures.HeadUp;
+                    break;
+                case Movement.LEFT:
+                    head.Texture = BodyTextures.HeadLeft;
+                    break;
+                case Movement.RIGHT:
+                    head.Texture = BodyTextures.HeadRight;
+                    break;
+                default:
+                    head.Texture = BodyTextures.HeadDown;
+                    break;
+            }
+        }// end UpdateHead()
+
+
+        private bool PartIsHorizontal(SnakeParts part) {
+            if(part.Direction == Movement.RIGHT || part.Direction == Movement.LEFT)
+                return true;
+            return false;
+        }// end IsPartHorizontal
+
+        private bool PartIsVertical(SnakeParts part) {
+            if(part.Direction == Movement.UP || part.Direction == Movement.DOWN)
+                return true;
+            return false;
+        }// end IsPartVertical
+
+        private void UpdateBodyPart(SnakeParts last, SnakeParts current, SnakeParts first) {
+            if(PartIsHorizontal(current)) {
+                if(PartIsHorizontal(last) && PartIsHorizontal(first)) {
+                    current.Texture = BodyTextures.HorizontalBody;
+                }
+                else if(last.Direction == Movement.LEFT) {
+                    if(first.Direction == Movement.UP)
+                        current.Texture = BodyTextures.TurnLeftDown;
+                    if(first.Direction == Movement.DOWN)
+                        current.Texture = BodyTextures.TurnLeftUp;
+                }
+                else if(last.Direction == Movement.RIGHT){
+                    if(first.Direction == Movement.UP)
+                        current.Texture = BodyTextures.TurnRightDown;
+                    if(first.Direction == Movement.DOWN)
+                        current.Texture = BodyTextures.TurnRightUp;
+                }
+            }
+            if(PartIsVertical(current)) {
+                if(PartIsVertical(last) && PartIsVertical(first)) {
+                    current.Texture = BodyTextures.VerticalBody;
+                }
+                else if(first.Direction == Movement.LEFT) {
+                    if(last.Direction == Movement.UP)
+                        current.Texture = BodyTextures.TurnRightUp;
+                    if(last.Direction == Movement.DOWN)
+                        current.Texture = BodyTextures.TurnRightDown;
+                }
+                else if(first.Direction == Movement.RIGHT) {
+                    if(last.Direction == Movement.DOWN)
+                        current.Texture = BodyTextures.TurnLeftDown;
+                    if(last.Direction == Movement.UP)
+                        current.Texture = BodyTextures.TurnLeftUp;
+                }
+            }
+        }
+
+        private void UpdateBody() {
+            // Loop through the body excluding the tail and head
+            for(int i = 1; i < Body.Count -1; i++) {
+                UpdateBodyPart(Body[i-1], Body[i], Body[i+1]);
+            }
+        }
+
+        private void UpdateTail(SnakeParts tail) {
+            switch(tail.Direction) {
+                //TODO change snake textures
+                case Movement.UP:
+                    tail.Texture = BodyTextures.TailDown;
+                    break;
+                case Movement.DOWN:
+                    tail.Texture = BodyTextures.TailUp;
+                    break;
+                case Movement.LEFT:
+                    tail.Texture = BodyTextures.TailLeft;
+                    break;
+                default:
+                    tail.Texture = BodyTextures.TailRight;
+                    break;
+            }
+        }
+
+        private void UpdateTextures() {
+            UpdateHead(Body[0]);
+            UpdateBody();
+            UpdateTail(Body.Last());
+        }
         
         public bool IsGameOver() {
             // The head of the snake
@@ -315,7 +413,6 @@ namespace SnakeObjects {
         }// end IsGameOver()
 
         public void ResetSnake() {
-            Console.WriteLine("WTF");
             Body.Clear();
             Body.Add(new SnakeParts(Movement.DOWN, BaseAsset, background));
         }// end ResetSnake()

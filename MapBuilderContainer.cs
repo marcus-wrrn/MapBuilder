@@ -61,7 +61,7 @@ namespace Containers {
         public SnakeContainer(MapBuilder.Game1 game, string fileName) {
             SnakeFileName = fileName;
             Map = new TileMap.Background(fileName, game);
-            PlayerSnake = new SnakeObjects.Snake(game.Content.Load<Texture2D>("tile2Test"), Map);
+            PlayerSnake = new SnakeObjects.Snake(new SnakeObjects.SnakeTextures(game), Map);
             SnakeFruit = new SnakeObjects.Fruit(game.Content.Load<Texture2D>("tile2Test"), Map, PlayerSnake);
             Font = game.Content.Load<SpriteFont>("CustomFont");
         }
