@@ -49,6 +49,45 @@ namespace SnakeObjects {
     }// end Fruit
 
     
+    public class SnakeTextures {
+        public Texture2D HorizontalBody{ get; private set; }
+        public Texture2D VerticalBody{ get; private set; }
+        public Texture2D HeadDown{ get; private set; }
+        public Texture2D HeadUp{ get; private set; }
+        public Texture2D HeadLeft{ get; private set; }
+        public Texture2D HeadRight{ get; private set; }
+        public Texture2D TailDown{ get; private set; }
+        public Texture2D TailUp{ get; private set; }
+        public Texture2D TailRight{ get; private set; }
+        public Texture2D TailLeft{ get; private set; }
+        public Texture2D TurnLeftDown{ get; private set; }
+        public Texture2D TurnLeftUp{ get; private set; }
+        public Texture2D TurnRightDown{ get; private set; }
+        public Texture2D TurnRightUp{ get; private set; }
+
+        public SnakeTextures(Game game) {
+            try {
+                HorizontalBody = game.Content.Load<Texture2D>("Snake_Body_Horizon");
+                VerticalBody = game.Content.Load<Texture2D>("Snake_Body_Vert");
+                HeadDown = game.Content.Load<Texture2D>("Snake_Head_Down");
+                HeadUp = game.Content.Load<Texture2D>("Snake_Head_Up");
+                HeadLeft = game.Content.Load<Texture2D>("Snake_Head_Left");
+                HeadRight = game.Content.Load<Texture2D>("Snake_Head_Right");
+                TailDown = game.Content.Load<Texture2D>("Snake_Tail_Down");
+                TailUp = game.Content.Load<Texture2D>("Snake_Tail_Up");
+                TailLeft = game.Content.Load<Texture2D>("Snake_Tail_Left");
+                TailRight = game.Content.Load<Texture2D>("Snake_Tail_Right");
+                TurnLeftDown = game.Content.Load<Texture2D>("Snake_Turn_Left_Down");
+                TurnLeftUp = game.Content.Load<Texture2D>("Snake_Turn_Left_up");
+                TurnRightDown = game.Content.Load<Texture2D>("Snake_Turn_Right_Down");
+                TurnRightUp = game.Content.Load<Texture2D>("Snake_Turn_Right_Up");
+            } catch {
+                Console.WriteLine("File not found");
+            }
+            
+        }
+    }
+
 
     public class SnakeParts : Assets.GameAsset {
         public Movement Direction{ get; set; }
