@@ -7,7 +7,6 @@ using System.Linq;
 
 namespace SnakeObjects {
     public enum Movement { LEFT, RIGHT, UP, DOWN, }
-    public enum PartType { HEAD, BODY, TAIL }
 
     // Fruit object
     public class Fruit {
@@ -85,20 +84,17 @@ namespace SnakeObjects {
 
     public class SnakeParts : Assets.GameAsset {
         public Movement Direction{ get; set; }
-        public PartType PartType{ get; set; }
         public int Row{ get; set; }
         public int Col{ get; set; }
         private TileMap.Background Background;
-        public SnakeParts(Movement direction, PartType partType, Assets.GameAsset asset, TileMap.Background bckground) : base(asset.Texture, asset.Location, asset.Speed) {
-            PartType = partType;
+        public SnakeParts(Movement direction, Assets.GameAsset asset, TileMap.Background bckground) : base(asset.Texture, asset.Location, asset.Speed) {
             Direction = direction;
             Background = bckground;
             Row = bckground.GetRowNumber(asset.Location);
             Col = bckground.GetColumnNumber(asset.Location);
         }
-        public SnakeParts(Movement direction, Assets.GameAsset asset, TileMap.Background background) : this(direction, PartType.BODY, asset, background) {}
         public SnakeParts GetClone() {
-            return new SnakeParts(Direction, PartType, this, Background);
+            return new SnakeParts(Direction, this, Background);
         }
         public void MoveUp() {
             Row--;
@@ -157,20 +153,20 @@ namespace SnakeObjects {
         private void SetNewPartLoc(SnakeParts part) {
             switch (part.Direction) {
                 case Movement.RIGHT:
-                    part.Col++;
-                    part.Location = background.GetTile(part.Row, part.Col).Location;
-                    break;
-                case Movement.LEFT:
                     part.Col--;
                     part.Location = background.GetTile(part.Row, part.Col).Location;
                     break;
+                case Movement.LEFT:
+                    part.Col++;
+                    part.Location = background.GetTile(part.Row, part.Col).Location;
+                    break;
                 case Movement.DOWN:
-                    part.Row++;
+                    part.Row--;
                     part.Location = background.GetTile(part.Row, part.Col).Location;
                     break;
                 // by default it moves up
                 default:
-                    part.Row--;
+                    part.Row++;
                     part.Location = background.GetTile(part.Row, part.Col).Location;
                     break;
             }
@@ -204,11 +200,12 @@ namespace SnakeObjects {
 
         public void GrowBody() {
             // Get last body part location
-            SnakeParts nextBodyPart = Body.Last().GetClone();
+            SnakeParts newTail = Body.Last().GetClone();
             // Set new parts location
-            SetNewPartLoc(nextBodyPart);
+            SetNewPartLoc(newTail);
             // Add to the body
-            Body.Add(nextBodyPart);
+            Body.Add(newTail);
+            UpdateTextures();
         }// end GrowBody()
 
         // Movement functions designed to update the first snake parts direction
@@ -330,6 +327,8 @@ namespace SnakeObjects {
             return false;
         }// end IsPartVertical
 
+
+        // Updates a specific body part of the snake
         private void UpdateBodyPart(SnakeParts last, SnakeParts current, SnakeParts first) {
             if(PartIsHorizontal(current)) {
                 if(PartIsHorizontal(last) && PartIsHorizontal(first)) {
@@ -394,8 +393,10 @@ namespace SnakeObjects {
 
         private void UpdateTextures() {
             UpdateHead(Body[0]);
-            UpdateBody();
-            UpdateTail(Body.Last());
+            if(Body.Count > 1) {
+                UpdateBody();
+                UpdateTail(Body.Last());
+            }
         }
         
         public bool IsGameOver() {
