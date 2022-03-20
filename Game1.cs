@@ -13,12 +13,12 @@ namespace MapBuilder
         private string SNAKE_FILE_NAME = "test2";
         private string MAPBUILDER_FILE_NAME = "test2";
         private GraphicsDeviceManager _graphics;
-        public SpriteBatch _spriteBatch;
+        private SpriteBatch _spriteBatch;
         public Containers.GameEditorContainer MapEditorContainer;
         public Containers.SnakeContainer SnakeContainer;
         //private string fileName = "test";
-        private Controllers.MasterController controller;
-        public bool IsNotGameOver = true;
+        private Controllers.MasterController _controller;
+        public MenuSystem.StartMenu _startMenu;
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -32,26 +32,28 @@ namespace MapBuilder
         protected override void Initialize()
         { 
             base.Initialize();
-            controller = new Controllers.MasterController(this);
+            _controller = new Controllers.MasterController(this);
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
+
         }
 
         protected override void Update(GameTime gameTime)
         {
             // Command Logic                
-            controller.Update(gameTime);                
+            _controller.Update(gameTime);                
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Aquamarine);
+            GraphicsDevice.Clear(Color.Black);
             _spriteBatch.Begin();
-            controller.Draw(gameTime, _spriteBatch);            
+            _controller.Draw(gameTime, _spriteBatch);     
+            //_startMenu.Draw(_spriteBatch);       
             _spriteBatch.End();
             // TODO: Add your drawing code here
 
@@ -64,6 +66,11 @@ namespace MapBuilder
 
         public void LoadSnake() {
             SnakeContainer = new Containers.SnakeContainer(this, SNAKE_FILE_NAME);
+        }
+
+        public void LoadStartMenu() {
+            var startMenuAsset = new Assets.GameAsset(Content.Load<Texture2D>("TestBox"), new Vector2(_graphics.PreferredBackBufferWidth/3, _graphics.PreferredBackBufferHeight/3));
+            _startMenu = new StartMenu(startMenuAsset, Content.Load<SpriteFont>("CustomFont"));
         }
 
         public int GetPrefferedBufferWidth() {

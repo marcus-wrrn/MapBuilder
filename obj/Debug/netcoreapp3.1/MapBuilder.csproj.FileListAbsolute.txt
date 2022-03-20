@@ -42,3 +42,5 @@
 /home/marcus/Projects/MapBuilder/MapBuilder/bin/Debug/netcoreapp3.1/Content/Snake_Turn_Right_Down.xnb
 /home/marcus/Projects/MapBuilder/MapBuilder/bin/Debug/netcoreapp3.1/Content/Snake_Turn_Right_Up.xnb
 /home/marcus/Projects/MapBuilder/MapBuilder/bin/Debug/netcoreapp3.1/Content/Snake_Tail_Down.xnb
+/home/marcus/Projects/MapBuilder/MapBuilder/bin/Debug/netcoreapp3.1/Content/Apple.xnb
+/home/marcus/Projects/MapBuilder/MapBuilder/bin/Debug/netcoreapp3.1/Content/TestBox.xnb
