@@ -263,7 +263,7 @@ namespace Controllers {
             _container.Map.Draw(spriteBatch);
             _container.PlayerSnake.Draw(spriteBatch);
             _container.SnakeFruit.Draw(spriteBatch);
-            spriteBatch.DrawString(_container.Font, "Score " + (_container.PlayerSnake.GetLength() - 1), new Vector2(3000, 500), Color.Black);
+            spriteBatch.DrawString(_container.Font, "Score \n" + (_container.PlayerSnake.GetLength() - 1), new Vector2(3000, 500), Color.Black);
         }
     }// end SnakeController
 

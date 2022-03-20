@@ -12,6 +12,63 @@ namespace MenuSystem {
         public MenuException(string message): base(message) {}
     }
 
+    public class MenuText {
+        public bool IsSelected;
+        public SpriteFont Font { get; private set; }
+        public Color FontColor { get; private set; }
+        public Color SelectedColor { get; private set; }
+        public Vector2 Location { get; set; }
+        public string Text { get; set; }
+
+        public MenuText(SpriteFont font, Vector2 location, bool isSelected, Color color, Color selectedColor) {
+            Font = font;
+            IsSelected = isSelected;
+            FontColor = color;
+            SelectedColor = selectedColor;
+            Location = location;
+            Text = "";
+        }
+        public MenuText(SpriteFont font, Vector2 location) : this(font, location, false, Color.Black, Color.Tomato) {}
+
+        public void Draw(SpriteBatch spriteBatch) {
+            var color = IsSelected ? SelectedColor : FontColor;
+            var text = IsSelected ? "> " + Text : Text;
+            spriteBatch.DrawString(Font, text, Location, color);
+        }
+    }
+
+    public class StartMenu {
+        private enum Selected {SNAKE, MENU};
+        private GameAsset _menuAsset;
+        private MenuText _snakeText;
+        private MenuText _mapBuildText;
+        private Selected _selectedChoice;
+
+        public StartMenu(GameAsset menuAsset, SpriteFont baseFont) {
+            _menuAsset = menuAsset;
+            _selectedChoice = Selected.SNAKE;
+            InitializeText(baseFont);
+        }// end constructor()
+
+        private void InitializeText(SpriteFont font) {
+            // Find location of the text
+            var snakeTextLocation = new Vector2(_menuAsset.Location.X + _menuAsset.Texture.Width * 0.25f, _menuAsset.Location.Y + _menuAsset.Texture.Height * 0.25f);
+            var menuTextLocation = new Vector2(snakeTextLocation.X, snakeTextLocation.Y + font.LineSpacing * 2f);
+            // Initialize Font
+            _snakeText = new MenuText(font, snakeTextLocation, true, Color.Black, Color.Crimson);
+            _mapBuildText = new MenuText(font, menuTextLocation, false, Color.Black, Color.Crimson);
+            // Sets text
+            _snakeText.Text = "Snake";
+            _mapBuildText.Text = "abcdefghijklmnopqrstuvwxyz";
+        }
+
+        public void Draw(SpriteBatch spriteBatch) {
+            _menuAsset.Draw(spriteBatch);
+            _snakeText.Draw(spriteBatch);
+            _mapBuildText.Draw(spriteBatch);
+        }
+    }// end StartMenu
+
     public class TilePickerMenu {
         public bool MenuClicked{ get; set; }
         private float menuSize;                     // size of the menu
