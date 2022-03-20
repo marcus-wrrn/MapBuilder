@@ -4,6 +4,7 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
+    <File>/home/marcus/Projects/MapBuilder/MapBuilder/Content/Apple.png</File>
     <File>/home/marcus/Projects/MapBuilder/MapBuilder/Content/Ball.png</File>
     <File>/home/marcus/Projects/MapBuilder/MapBuilder/Content/CustomFont.spritefont</File>
     <File>/home/marcus/Projects/MapBuilder/MapBuilder/Content/Menu.png</File>
@@ -21,6 +22,7 @@
     <File>/home/marcus/Projects/MapBuilder/MapBuilder/Content/Snake_Turn_Left_Up.png</File>
     <File>/home/marcus/Projects/MapBuilder/MapBuilder/Content/Snake_Turn_Right_Down.png</File>
     <File>/home/marcus/Projects/MapBuilder/MapBuilder/Content/Snake_Turn_Right_Up.png</File>
+    <File>/home/marcus/Projects/MapBuilder/MapBuilder/Content/TestBox.png</File>
     <File>/home/marcus/Projects/MapBuilder/MapBuilder/Content/tile.png</File>
     <File>/home/marcus/Projects/MapBuilder/MapBuilder/Content/tile2Test.png</File>
   </SourceFiles>
@@ -30,7 +32,9 @@
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File>Snake_Head_Downt.png</File>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
