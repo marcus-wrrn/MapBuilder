@@ -196,6 +196,10 @@ namespace SnakeObjects {
                     return true;
             }
             return false;
+        }// end IsTouchingSnake()
+
+        public Vector2 GetSnakeHeadLocation() {
+            return Body[0].Location;
         }
 
         public void GrowBody() {
