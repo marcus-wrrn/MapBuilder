@@ -261,7 +261,7 @@ namespace Controllers {
             _container.Map.Draw(spriteBatch);
             _container.PlayerSnake.Draw(spriteBatch);
             _container.SnakeFruit.Draw(spriteBatch);
-            spriteBatch.DrawString(_container.Font, "Score \n" + (_container.PlayerSnake.GetLength() - 1), new Vector2(3000, 500), Color.Black);
+            spriteBatch.DrawString(_container.Font, "Score \n" + (_container.PlayerSnake.GetLength() - 1), new Vector2(3000, 500), Color.WhiteSmoke);
         }
     }// end SnakeController
 
@@ -341,10 +341,8 @@ namespace Controllers {
             switch (primaryMode) {
                 case MainControllerMode.START_SCREEN:
                     _startMenuController.Update(gameTime);
-                    if(_startMenuController.SnakeSelected)
-                        LoadSnake();
-                    else if(_startMenuController.MenuSelected)
-                        LoadMap();
+                    // If the player selected an option then load into
+                    LoadStartSelection();
                     break;
                 case MainControllerMode.SNAKE_GAME:
                     snakeController.Update(gameTime);
@@ -355,27 +353,11 @@ namespace Controllers {
             }
         }
 
-        private void UpdateStartScreen() {
-            KeyboardState kState = Keyboard.GetState();
-            foreach(Button butt in commandKeys) {
-                // Switch case which goes through every available menu command 
-                switch (butt.effectName) {
-                    case MasterCommands.EXIT_GAME:
-                        if(kState.IsKeyDown(butt.Key))
-                            gamePointer.Exit();
-                        break;
-                    case MasterCommands.SWITCH_TO_MAPBUILDER:
-                        if(primaryMode == MainControllerMode.START_SCREEN)
-                            UseCommand(kState, butt, () => LoadMap());
-                        break;
-                    case MasterCommands.SWITCH_TO_SNAKE:
-                        if(primaryMode == MainControllerMode.START_SCREEN)
-                            UseCommand(kState, butt, () => LoadSnake());
-                        break;
-                    default:
-                        break;
-                }
-            }// end foreach loop
+        private void LoadStartSelection() {
+            if(_startMenuController.SnakeSelected)
+                LoadSnake();
+            else if(_startMenuController.MenuSelected)
+                LoadMap();
         }//end UpdateStartScreen()
 
         private void LoadSnake() {
