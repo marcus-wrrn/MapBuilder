@@ -46,6 +46,10 @@ namespace SnakeObjects {
             Object.Draw(spriteBatch);
         }// end Draw()
 
+        public void Draw(SpriteBatch spriteBatch, Vector2 offset) {
+            Object.Draw(spriteBatch, offset);
+        }
+
     }// end Fruit
     
     public class SnakeTextures {
@@ -199,8 +203,8 @@ namespace SnakeObjects {
         }// end IsTouchingSnake()
 
         public Vector2 GetSnakeHeadLocation() {
-            return Body[0].Location;
-        }
+            return new Vector2(Body[0].Location.X, Body[0].Location.Y);
+        }// end GetSnakeHeadLocation()
 
         public void GrowBody() {
             // Get last body part location
@@ -431,5 +435,11 @@ namespace SnakeObjects {
                 part.Draw(spriteBatch);
             }
         }// end Draw()
+
+        public void Draw(SpriteBatch spriteBatch, Vector2 offset) {
+            foreach(var part in Body) {
+                part.Draw(spriteBatch, offset);
+            }
+        }
     }// end Snake
 }// end SnakeObjects namespacee

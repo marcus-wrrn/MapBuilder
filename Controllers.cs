@@ -184,8 +184,8 @@ namespace Controllers {
 
         public void Draw(SpriteBatch spriteBatch) {
             _container.Map.Draw(spriteBatch);
-            _container.TileMenu.Draw(spriteBatch);
             _container.BrushTool.DrawBrush(spriteBatch);
+            _container.TileMenu.Draw(spriteBatch);
         }
             
     }// end MapControl
@@ -193,11 +193,17 @@ namespace Controllers {
     public class SnakeController : BaseController {
         protected enum ControllerMode { PLAY_GAME, GAME_OVER }
         private enum SnakeCommands { MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, RESET_SNAKE }
-        private Containers.SnakeContainer _container;
         private ControllerMode Mode;
+        private Visualization.Camera _playerCamera;
+        private SnakeObjects.Snake PlayerSnake;
+        private SnakeObjects.Fruit SnakeFruit;
+        private TileMap.Background Map;
+        private SpriteFont Font;
 
-        public SnakeController(Containers.SnakeContainer container) {
-            _container = container;
+        public SnakeController(MapBuilder.Game1 game) {
+            // Get all values from the container
+            UnpackContainer(game.SnakeContainer);
+            _playerCamera = new Visualization.Camera(game, game.SnakeContainer);
             Mode = ControllerMode.PLAY_GAME;
             // Initiallize the key Commands
             commandKeys = new Button[] {
@@ -208,17 +214,25 @@ namespace Controllers {
                 new Button(Keys.Left, SnakeCommands.MOVE_LEFT),
                 new Button(Keys.R, Keys.LeftShift, SnakeCommands.RESET_SNAKE)
             };
-        }
+        }// end Constructor
 
-        public SnakeController(MapBuilder.Game1 game) : this(game.SnakeContainer) {}
+        // Not strictly neccessary but I think it makes the code more readable
+        private void UnpackContainer(Containers.SnakeContainer container) {
+            PlayerSnake = container.PlayerSnake;
+            SnakeFruit = container.SnakeFruit;
+            Map = container.Map;
+            Font = container.Font;
+        }// end UnpackContainer()
 
+        // Updates the Snake
         public void Update(GameTime gameTime) {
             // Call the input commands
             CommandInputs();
+            _playerCamera.Update();
             // Update game
             if(Mode == ControllerMode.PLAY_GAME) {
-                if(_container.PlayerSnake.PlaySnake(gameTime))
-                    _container.SnakeFruit.Update();
+                if(PlayerSnake.PlaySnake(gameTime))
+                    SnakeFruit.Update();
                 else
                     Mode = ControllerMode.GAME_OVER; 
             }
@@ -231,23 +245,23 @@ namespace Controllers {
                 switch (butt.effectName) {
                     case SnakeCommands.MOVE_UP:
                         if (kState.IsKeyDown(butt.Key))
-                            _container.PlayerSnake.MoveUp();
+                            PlayerSnake.MoveUp();
                         break;
                     case SnakeCommands.MOVE_DOWN:
                         if (kState.IsKeyDown(butt.Key))
-                            _container.PlayerSnake.MoveDown();
+                            PlayerSnake.MoveDown();
                         break;
                     case SnakeCommands.MOVE_LEFT:
                         if (kState.IsKeyDown(butt.Key))
-                            _container.PlayerSnake.MoveLeft();
+                            PlayerSnake.MoveLeft();
                         break;
                     case SnakeCommands.MOVE_RIGHT:
                         if (kState.IsKeyDown(butt.Key))
-                            _container.PlayerSnake.MoveRight();
+                            PlayerSnake.MoveRight();
                         break;
                     case SnakeCommands.RESET_SNAKE:
                         if (kState.IsKeyDown(butt.Key)) {
-                            _container.PlayerSnake.ResetSnake();
+                            PlayerSnake.ResetSnake();
                             Mode = ControllerMode.PLAY_GAME;
                         }
                         break;
@@ -258,10 +272,11 @@ namespace Controllers {
         }// end CommandInputs()
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch) {
-            _container.Map.Draw(spriteBatch);
-            _container.PlayerSnake.Draw(spriteBatch);
-            _container.SnakeFruit.Draw(spriteBatch);
-            spriteBatch.DrawString(_container.Font, "Score \n" + (_container.PlayerSnake.GetLength() - 1), new Vector2(3000, 500), Color.WhiteSmoke);
+            // Map.Draw(spriteBatch);
+            // PlayerSnake.Draw(spriteBatch);
+            // SnakeFruit.Draw(spriteBatch);
+            _playerCamera.Draw(gameTime, spriteBatch);
+            spriteBatch.DrawString(Font, "Score \n" + (PlayerSnake.GetLength() - 1), new Vector2(3000, 500), Color.WhiteSmoke);
         }
     }// end SnakeController
 
@@ -371,7 +386,8 @@ namespace Controllers {
 
         private void LoadMap() {
             // Load all game logic for the map
-            gamePointer.LoadMap();
+            //gamePointer.LoadMap();
+            gamePointer.LoadNewMap("Testing", 50, 50);
             // Create the map controller
             mapController = new MapController(gamePointer);
             // Set the mode to null

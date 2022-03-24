@@ -10,8 +10,8 @@ namespace MapBuilder
     {   
         // Constants for the file names
         // TODO: Implement a file save + load system
-        private string SNAKE_FILE_NAME = "test2";
-        private string MAPBUILDER_FILE_NAME = "test2";
+        private string _snakeFile = "Testing";
+        private string _mapBuilderFile = "test2";
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         public Containers.GameEditorContainer MapEditorContainer;
@@ -61,11 +61,16 @@ namespace MapBuilder
         }
 
         public void LoadMap() {
-            MapEditorContainer = new Containers.GameEditorContainer(this, MAPBUILDER_FILE_NAME);
+            MapEditorContainer = new Containers.GameEditorContainer(this, _mapBuilderFile);
+        }
+
+        public void LoadNewMap(string fileName, int rows, int columns) {
+            _mapBuilderFile = fileName;
+            MapEditorContainer = new Containers.GameEditorContainer(this, _mapBuilderFile, rows, columns);
         }
 
         public void LoadSnake() {
-            SnakeContainer = new Containers.SnakeContainer(this, SNAKE_FILE_NAME);
+            SnakeContainer = new Containers.SnakeContainer(this, _snakeFile);
         }
 
         public void LoadStartMenu() {

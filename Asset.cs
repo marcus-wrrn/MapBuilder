@@ -55,5 +55,10 @@ namespace Assets {
             Rectangle sourceRectangle = new Rectangle((int)Location.X, (int)Location.Y, Texture.Width, Texture.Height);
             spriteBatch.Draw(Texture, sourceRectangle, null, Color.White);
         }// Draws the texture
+
+        public void Draw(SpriteBatch spriteBatch, Vector2 offset) {
+            Rectangle sourceRectangle = new Rectangle((int)(Location.X + offset.X), (int)(Location.Y + offset.Y), Texture.Width, Texture.Height);
+            spriteBatch.Draw(Texture, sourceRectangle, null, Color.White);
+        }
     }
 }
