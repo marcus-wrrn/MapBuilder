@@ -43,6 +43,7 @@ namespace Visualization {
             // Finds Camera Range
             CameraRange = new TileMap.TileRange(GetMinColumnOrRow(snakeRow, maxTilesHeight), GetMaxColumnOrRow(snakeRow, maxTilesHeight, _backgroundMap.Rows), 
                                                 GetMinColumnOrRow(snakeColumn, maxTilesWidth), GetMaxColumnOrRow(snakeColumn, maxTilesWidth, _backgroundMap.Columns));
+            InitializeOffset(snakeLoc);
         }// end InitializeCamera()
 
         private int GetMinColumnOrRow(int snakeTile, int maxTiles) {
@@ -55,12 +56,14 @@ namespace Visualization {
         private int GetMaxColumnOrRow(int snakeTile, int maxTiles, int maxMap) {
             int maxTile = snakeTile + maxTiles/2;
             if(maxTile >= maxMap)
-                maxTile = maxMap - 1;
+                maxTile = maxMap;
             return maxTile;
         }// end getMaxColumnOrRow()
 
-        private void InitializeOffset() {
-            _mapOffset = _backgroundMap.GetTile(CameraRange.StartX, CameraRange.StartY).Location;
+        private void InitializeOffset(Vector2 snakeLoc) {
+            var centreLoc = new Vector2(_screenWidth/2, _screenHeight/2);
+            //_mapOffset = _backgroundMap.GetTile(CameraRange.StartX, CameraRange.StartY).Location;
+            _mapOffset = centreLoc - snakeLoc;
         }
 
 
@@ -68,8 +71,6 @@ namespace Visualization {
         public void Update() {
             // Updates the camera
             InitializeCamera();
-            // Updates the offset
-            InitializeOffset();
             TestCamera();
         }// end Update()
 
