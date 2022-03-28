@@ -7,6 +7,21 @@ using Assets;
 
 namespace TileMap {
 
+    // Provides a range of tiles
+    public class SquareRange {
+        public int StartX{ get; set; }
+        public int StartY{ get; set; }
+        public int EndX{ get; set; }
+        public int EndY{ get; set; }
+
+        public SquareRange(int startX, int endX, int startY, int endY) {
+            StartX = startX;
+            StartY = startY;
+            EndX = endX;
+            EndY = endY;
+        }
+    }// end TileRange
+
     public class BackgroundException : Exception {
         public BackgroundException(string message): base(message) {}
     }// end BackgroundException
@@ -16,6 +31,7 @@ namespace TileMap {
         public int Rows { get; set; }               // Number of rows in the map 
         public int Columns { get; set; }            // Number of columns in the map
         public Texture2D BaseTile { get; set; }     // Reference texture
+        public SquareRange Boundries { get; private set; }
 
         private Vector2 OffSet;
 
@@ -86,23 +102,6 @@ namespace TileMap {
         public int GetRowNumber(Vector2 location) {
             return (int)((location.Y - OffSet.Y)/BaseTile.Width);
         }
-        public void Draw(SpriteBatch spriteBatch) {
-            for(int i = 0; i < Rows; i++) {
-                for(int j = 0; j < Columns; j++) {
-                    // Draw the sprite
-                    DrawTile(spriteBatch, map[i,j]);
-                }
-            }
-        }// end Draw()
-
-        private void DrawTile(SpriteBatch spriteBatch, GameAsset tile) {
-            try {
-                Rectangle sourceRectangle = new Rectangle((int)tile.Location.X, (int)tile.Location.Y, BaseTile.Width, BaseTile.Height);
-                spriteBatch.Draw(tile.Texture, sourceRectangle, null, Color.White);
-            } catch {
-                Console.WriteLine("Tile Exeception source");
-            }
-        }// end DrawTile()
 
         public void UpdateTile(Texture2D tile, Vector2 location) {
             try {
@@ -154,6 +153,48 @@ namespace TileMap {
                 }
             }
         }//  end ExportToBinary()
+
+
+        public void Draw(SpriteBatch spriteBatch) {
+            for(int i = 0; i < Rows; i++) {
+                for(int j = 0; j < Columns; j++) {
+                    // Draw the sprite
+                    DrawTile(spriteBatch, map[i,j]);
+                }
+            }
+        }// end Draw()
+
+        public void Draw(SquareRange range, Vector2 offset, SpriteBatch spriteBatch) {
+            try {
+                for(int i = range.StartX; i < range.EndX; i++) {
+                    for(int j = range.StartY; j < range.EndY; j++) {
+                        DrawTile(spriteBatch, map[i,j], offset);
+                    }
+                }
+            } catch {
+                Console.WriteLine("Tile out of range");
+                Console.WriteLine("StartX: " + range.StartX);
+                Console.WriteLine("EndX: " + range.EndX);
+                Console.WriteLine("StartY: " + range.StartY);
+                Console.WriteLine("EndY: " + range.EndY);
+                Console.WriteLine("Rows: " + Rows);
+                Console.WriteLine("Columns: " + Columns);
+            }
+        }
+
+
+        private void DrawTile(SpriteBatch spriteBatch, GameAsset tile) {
+            DrawTile(spriteBatch, tile, new Vector2(0,0));
+        }// end DrawTile()
+
+        // Draws a tile with an offset
+        private void DrawTile(SpriteBatch spriteBatch, GameAsset tile, Vector2 offset) {
+            try {
+                tile.Draw(spriteBatch, offset);
+            } catch {
+                Console.WriteLine("Tile Exeception source");
+            }
+        }// end DrawTile()
         
     }// end Background
 }// end namespace TileMap

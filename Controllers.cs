@@ -3,35 +3,43 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
 
+/*  File used to keep all controllers for the gameplay loop 
+    Button - 
+*/
 
 namespace Controllers {
+    
+    // +++++++++++++++++++++++++++++++++++++++++++ Initialization for Controllers +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
     public class Button {
             public Keys Key{ get; set; }
             public Keys SecondaryKey{ get; set; }
             public bool IsPressed{ get; set; }
-            public Enum effectName{get;}
+            public Enum EffectName{get;}
 
             public Button(Keys key, Keys key2, Enum name) {
                 Key = key;
                 SecondaryKey = key2;
                 IsPressed = false;
-                effectName = name;
+                EffectName = name;
             }
 
             public Button(Keys key, Enum name) {
                 Key = key;
                 SecondaryKey = Keys.None;
                 IsPressed = false;
-                effectName = name;
+                EffectName = name;
             }
     }// end Button
 
+    // TODO implement a proper interface into classes
     public interface ControllerInterface {
         void Update(GameTime gameTime);
         void CommandInputs(GameTime gameTime);
         void Draw(GameTime gameTime);
-    }
+    }// end ContorlollerInterface
 
+    // Base Controller for all classes
     public class BaseController {
         // to be used later to swap between different modes for the map editor
         protected Button[] commandKeys;               // All Key commands with the shift 
@@ -47,8 +55,11 @@ namespace Controllers {
                     butt.IsPressed = false;
             }
         }// end UseCommand()
-    }
+    }//
 
+    // +++++++++++++++++++++++++++++++++++++++++++ Map Controller +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    // Map Controller for controller the MapBuilder functionality of the code
     public class MapController : BaseController {
         private enum MenuCommands { MENU_VISIBILITY, MOVE_MENU_MODE_SWITCH, DRAW_MODE_SWITCH, 
         BUCKET_MODE_SWITCH, MOVE_UP, MOVE_DOWN, MOVE_LEFT, 
@@ -60,7 +71,6 @@ namespace Controllers {
         private Containers.GameEditorContainer _container;
         private ControllerMode mode;                // The mode that the controller is currently in
 
-        // TODO: Decrease the variable bloat, this is going to be solved using better containerization of the mapbuilder and snake game classes
         public MapController(Containers.GameEditorContainer container) {
             _container = container;
             // TODO add save/load file path
@@ -84,14 +94,12 @@ namespace Controllers {
 
         public MapController(MapBuilder.Game1 game) : this(game.MapEditorContainer) {}
 
-
-
         // Checks keys to check if any MenuEffects should be triggered
         private void CommandInputs(GameTime gameTime) {
             KeyboardState kState = Keyboard.GetState();
             foreach(Button butt in commandKeys) {
                 // Switch case which goes through every available menu command 
-                switch (butt.effectName) {
+                switch (butt.EffectName) {
                     case MenuCommands.MENU_VISIBILITY:
                         // Toggles menu visibility
                         UseCommand(kState, butt, () => _container.TileMenu.ToggleVisibility());
@@ -155,7 +163,7 @@ namespace Controllers {
             
         }// end MouseEffects()
 
-        // Helps BrushInputManager by Making sure that the map is being updated Correctly
+        // Helps BrushInputManager by making sure that the map is being updated Correctly
         private void BrushInputHelper(Vector2 mouseLoc) {
             // Gets the current texture
             Texture2D texture = _container.BrushTool.GetCurrentTile().Texture;
@@ -176,29 +184,40 @@ namespace Controllers {
                     _container.BrushTool.BucketFill(_container.Map, mouseLoc, texture);
                 _container.TileMenu.MenuClicked = false;
             }
-        }
+        }// end BrushInputHelper()
+
         public void Update(GameTime gameTime) {
             CommandInputs(gameTime);
             BrushInputManager();
-        }
+        }// end Update()
 
         public void Draw(SpriteBatch spriteBatch) {
             _container.Map.Draw(spriteBatch);
-            _container.TileMenu.Draw(spriteBatch);
             _container.BrushTool.DrawBrush(spriteBatch);
-        }
+            _container.TileMenu.Draw(spriteBatch);
+        }// end Draw()
             
     }// end MapControl
 
+    // +++++++++++++++++++++++++++++++++++++++++++ Snake Controller +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    // Snake Controller responsible for controlling the Snake game
     public class SnakeController : BaseController {
         protected enum ControllerMode { PLAY_GAME, GAME_OVER }
         private enum SnakeCommands { MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, RESET_SNAKE }
-        private Containers.SnakeContainer _container;
-        private ControllerMode Mode;
+        private ControllerMode _controllerMode;
+        private Visualization.Camera _playerCamera;
+        private SnakeObjects.Snake _playerSnake;
+        private SnakeObjects.Fruit _snakeFruit;
+        private TileMap.Background _map;
+        private SpriteFont _font;
 
-        public SnakeController(Containers.SnakeContainer container) {
-            _container = container;
-            Mode = ControllerMode.PLAY_GAME;
+        public SnakeController(MapBuilder.Game1 game) {
+            // Get all values from the snake container
+            UnpackContainer(game.SnakeContainer);
+            // Initializes camera + mode
+            _playerCamera = new Visualization.Camera(game, game.SnakeContainer);
+            _controllerMode = ControllerMode.PLAY_GAME;
             // Initiallize the key Commands
             commandKeys = new Button[] {
                 // Toggles Menu Visibility
@@ -208,47 +227,42 @@ namespace Controllers {
                 new Button(Keys.Left, SnakeCommands.MOVE_LEFT),
                 new Button(Keys.R, Keys.LeftShift, SnakeCommands.RESET_SNAKE)
             };
-        }
+        }// end Constructor
 
-        public SnakeController(MapBuilder.Game1 game) : this(game.SnakeContainer) {}
-
-        public void Update(GameTime gameTime) {
-            // Call the input commands
-            CommandInputs();
-            // Update game
-            if(Mode == ControllerMode.PLAY_GAME) {
-                if(_container.PlayerSnake.PlaySnake(gameTime))
-                    _container.SnakeFruit.Update();
-                else
-                    Mode = ControllerMode.GAME_OVER; 
-            }
-        }// end Update
+        // Not strictly neccessary as you could just store everything in a container
+        // but I think it makes the code more readable
+        private void UnpackContainer(Containers.SnakeContainer container) {
+            _playerSnake = container.PlayerSnake;
+            _snakeFruit = container.SnakeFruit;
+            _map = container.Map;
+            _font = container.Font;
+        }// end UnpackContainer()
 
         private void CommandInputs() {
             KeyboardState kState = Keyboard.GetState();
             foreach(Button butt in commandKeys) {
                 // Switch case which goes through every available menu command 
-                switch (butt.effectName) {
+                switch (butt.EffectName) {
                     case SnakeCommands.MOVE_UP:
                         if (kState.IsKeyDown(butt.Key))
-                            _container.PlayerSnake.MoveUp();
+                            _playerSnake.MoveUp();
                         break;
                     case SnakeCommands.MOVE_DOWN:
                         if (kState.IsKeyDown(butt.Key))
-                            _container.PlayerSnake.MoveDown();
+                            _playerSnake.MoveDown();
                         break;
                     case SnakeCommands.MOVE_LEFT:
                         if (kState.IsKeyDown(butt.Key))
-                            _container.PlayerSnake.MoveLeft();
+                            _playerSnake.MoveLeft();
                         break;
                     case SnakeCommands.MOVE_RIGHT:
                         if (kState.IsKeyDown(butt.Key))
-                            _container.PlayerSnake.MoveRight();
+                            _playerSnake.MoveRight();
                         break;
                     case SnakeCommands.RESET_SNAKE:
                         if (kState.IsKeyDown(butt.Key)) {
-                            _container.PlayerSnake.ResetSnake();
-                            Mode = ControllerMode.PLAY_GAME;
+                            _playerSnake.ResetSnake();
+                            _controllerMode = ControllerMode.PLAY_GAME;
                         }
                         break;
                     default:
@@ -257,13 +271,33 @@ namespace Controllers {
             }// end foreach loop
         }// end CommandInputs()
 
+        // Updates the Snake
+        public void Update(GameTime gameTime) {
+            // Call the input commands
+            CommandInputs();
+            _playerCamera.Update();
+            // Update game
+            if(_controllerMode == ControllerMode.PLAY_GAME) {
+                if(_playerSnake.PlaySnake(gameTime))
+                    _snakeFruit.Update();
+                else
+                    _controllerMode = ControllerMode.GAME_OVER; 
+            }
+        }// end Update
+
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch) {
-            _container.Map.Draw(spriteBatch);
-            _container.PlayerSnake.Draw(spriteBatch);
-            _container.SnakeFruit.Draw(spriteBatch);
-            spriteBatch.DrawString(_container.Font, "Score \n" + (_container.PlayerSnake.GetLength() - 1), new Vector2(3000, 500), Color.WhiteSmoke);
+            // Map.Draw(spriteBatch);
+            // PlayerSnake.Draw(spriteBatch);
+            // SnakeFruit.Draw(spriteBatch);
+            _playerCamera.Draw(gameTime, spriteBatch);
+            // Should be moved over to the camera
+            if(_controllerMode == ControllerMode.GAME_OVER)
+                spriteBatch.DrawString(_font, "GAMEOVER", new Vector2(2000, 800), Color.Red);
+            spriteBatch.DrawString(_font, "Score \n" + (_playerSnake.GetLength() - 1), new Vector2(3000, 500), Color.WhiteSmoke);
         }
     }// end SnakeController
+
+    // +++++++++++++++++++++++++++++++++++++++++++ StartMenu Controller +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     public class StartMenuController : BaseController {
         private MenuSystem.StartMenu _startMenu;
@@ -281,11 +315,11 @@ namespace Controllers {
             };
         }// end Constructor
 
-        public void Update(GameTime gameTime) {
+        private void CommandInputs(GameTime gameTime) {
             KeyboardState kState = Keyboard.GetState();
             foreach(Button butt in commandKeys) {
                 // Switch case which goes through every available menu command 
-                switch (butt.effectName) {
+                switch (butt.EffectName) {
                     case KeyCommands.MOVE_UP:
                         UseCommand(kState, butt, () => _startMenu.MoveSelected());
                         break;
@@ -304,6 +338,12 @@ namespace Controllers {
                         break;
                 }
             }// end foreach loop
+        }// end CommandInputs()
+
+        // At this point it's redundant since it just calls CommandInputs
+        // but I wanted to keep the same structure to the other controllers for consistency + future use
+        public void Update(GameTime gameTime) {
+            CommandInputs(gameTime);
         }// end Update()
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch) {
@@ -311,7 +351,10 @@ namespace Controllers {
         }// end Draw()
     }
 
-    // Master Controller class which will be used to control the flow of the game
+    // +++++++++++++++++++++++++++++++++++++++++++ Master Controller +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    // Master Controller class which will be used to control the flow of the game 
+    // + which controller is being used
     public class MasterController : BaseController {
         private enum MainControllerMode{ START_SCREEN, MAP_EDITOR, SNAKE_GAME }
         private enum SecondaryControllerMode{ OPTIONS_MENU, OFF }
@@ -351,7 +394,7 @@ namespace Controllers {
                     mapController.Update(gameTime);
                     break;
             }
-        }
+        }// end Update()
 
         private void LoadStartSelection() {
             if(_startMenuController.SnakeSelected)
@@ -371,7 +414,8 @@ namespace Controllers {
 
         private void LoadMap() {
             // Load all game logic for the map
-            gamePointer.LoadMap();
+            //gamePointer.LoadMap();
+            gamePointer.LoadNewMap("Testing", 50, 50);
             // Create the map controller
             mapController = new MapController(gamePointer);
             // Set the mode to null
@@ -382,7 +426,7 @@ namespace Controllers {
             gamePointer.LoadStartMenu();
             _startMenuController = new StartMenuController(gamePointer);
             primaryMode = MainControllerMode.START_SCREEN;
-        }
+        }// end LoadStartScreen()
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch) {
             switch(primaryMode) {
@@ -396,6 +440,8 @@ namespace Controllers {
                     mapController.Draw(spriteBatch);
                     break;
             }
-        }
+        }// end Draw()
+
     }// end MasterController
-}
+
+}// end namespace

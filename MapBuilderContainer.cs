@@ -9,11 +9,18 @@ namespace Containers {
         public TileMap.Background Map;
         public MenuSystem.TilePickerMenu TileMenu;
         public Drawing.Brush BrushTool;
-        private string MapFileName;
+        private string _mapFileName;
 
         public GameEditorContainer(MapBuilder.Game1 game, string fileName) {
-            MapFileName = fileName;
+            _mapFileName = fileName;
             Map = new TileMap.Background(fileName, game);
+            BrushTool = new Drawing.Brush(game.Content.Load<Texture2D>("tile"), game.Content.Load<Texture2D>("tile2Test"));
+            LoadMenu(game);
+        }
+
+        public GameEditorContainer(MapBuilder.Game1 game, string fileName, int rows, int columns) {
+            _mapFileName = fileName;
+            Map = new TileMap.Background(game.Content.Load<Texture2D>("tile"), rows, columns);
             BrushTool = new Drawing.Brush(game.Content.Load<Texture2D>("tile"), game.Content.Load<Texture2D>("tile2Test"));
             LoadMenu(game);
         }
@@ -31,17 +38,19 @@ namespace Containers {
         }
         // Methods used to save the map
         public void SaveMap() {
-            Map.ExportToBinary(MapFileName);
+            Map.ExportToBinary(_mapFileName);
         }
 
         public void SaveMap(string fileName) {
             Map.ExportToBinary(fileName);
         }
-
+        
+        
         public void LoadNewMap(string fileName, MapBuilder.Game1 game) {
             try
             {
                 Map = new TileMap.Background(fileName, game);
+                _mapFileName = fileName;
             }
             catch (System.Exception)
             {
@@ -49,6 +58,7 @@ namespace Containers {
                 throw;
             }
         }
+
 
     }// end GameEditorContainer
 
