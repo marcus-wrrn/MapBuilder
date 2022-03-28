@@ -1,7 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using TileMap;
 using MenuSystem;
 
 namespace MapBuilder
@@ -38,7 +36,6 @@ namespace MapBuilder
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
         }
 
         protected override void Update(GameTime gameTime)
@@ -55,8 +52,6 @@ namespace MapBuilder
             _controller.Draw(gameTime, _spriteBatch);     
             //_startMenu.Draw(_spriteBatch);       
             _spriteBatch.End();
-            // TODO: Add your drawing code here
-
             base.Draw(gameTime);
         }
 

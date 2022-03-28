@@ -8,13 +8,13 @@ using Assets;
 namespace TileMap {
 
     // Provides a range of tiles
-    public class TileRange {
+    public class SquareRange {
         public int StartX{ get; set; }
         public int StartY{ get; set; }
         public int EndX{ get; set; }
         public int EndY{ get; set; }
 
-        public TileRange(int startX, int endX, int startY, int endY) {
+        public SquareRange(int startX, int endX, int startY, int endY) {
             StartX = startX;
             StartY = startY;
             EndX = endX;
@@ -31,6 +31,7 @@ namespace TileMap {
         public int Rows { get; set; }               // Number of rows in the map 
         public int Columns { get; set; }            // Number of columns in the map
         public Texture2D BaseTile { get; set; }     // Reference texture
+        public SquareRange Boundries { get; private set; }
 
         private Vector2 OffSet;
 
@@ -163,7 +164,7 @@ namespace TileMap {
             }
         }// end Draw()
 
-        public void Draw(TileRange range, Vector2 offset, SpriteBatch spriteBatch) {
+        public void Draw(SquareRange range, Vector2 offset, SpriteBatch spriteBatch) {
             try {
                 for(int i = range.StartX; i < range.EndX; i++) {
                     for(int j = range.StartY; j < range.EndY; j++) {

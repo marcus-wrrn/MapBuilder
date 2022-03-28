@@ -14,7 +14,7 @@ namespace Visualization {
         private SnakeObjects.Snake _snake;
         private SnakeObjects.Fruit _fruit;
         private TileMap.Background _backgroundMap;
-        public TileMap.TileRange CameraRange{ get; private set; }
+        public TileMap.SquareRange CameraRange{ get; private set; }
         private Vector2 _mapOffset;
 
         public Camera(MapBuilder.Game1 game, Containers.SnakeContainer snakeContainer) {
@@ -41,7 +41,7 @@ namespace Visualization {
             int snakeColumn = _backgroundMap.GetColumnNumber(snakeLoc);
             int snakeRow = _backgroundMap.GetRowNumber(snakeLoc);
             // Finds Camera Range
-            CameraRange = new TileMap.TileRange(GetMinColumnOrRow(snakeRow, maxTilesHeight), GetMaxColumnOrRow(snakeRow, maxTilesHeight, _backgroundMap.Rows), 
+            CameraRange = new TileMap.SquareRange(GetMinColumnOrRow(snakeRow, maxTilesHeight), GetMaxColumnOrRow(snakeRow, maxTilesHeight, _backgroundMap.Rows), 
                                                 GetMinColumnOrRow(snakeColumn, maxTilesWidth), GetMaxColumnOrRow(snakeColumn, maxTilesWidth, _backgroundMap.Columns));
             InitializeOffset(snakeLoc);
         }// end InitializeCamera()
